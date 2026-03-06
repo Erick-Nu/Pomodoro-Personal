@@ -34,3 +34,8 @@ export const agregarNota = (tareaId, titulo, contenido, etiqueta = 'importante')
 export const obtenerNotasDeTarea = (tareaId) => {
   return db.getAllSync('SELECT * FROM notas WHERE tarea_id = ? ORDER BY fecha_registro DESC', [tareaId]);
 };
+
+export const eliminarTarea = (tareaId) => {
+  // Las notas y sesiones se eliminan automáticamente por ON DELETE CASCADE
+  return db.runSync('DELETE FROM tareas WHERE id = ?', [tareaId]);
+};
