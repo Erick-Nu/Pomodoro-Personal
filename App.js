@@ -38,10 +38,10 @@ function HomeStack() {
   return (
     <Stack.Navigator 
       screenOptions={{ 
-        headerStyle: { backgroundColor: '#121212' }, 
-        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: '#1a1a2e' }, 
+        headerTintColor: '#f1f5f9',
         headerTitleStyle: { fontWeight: 'bold' },
-        animation: 'slide_from_right' // Animación nativa de Android
+        animation: 'slide_from_right'
       }}
     >
       <Stack.Screen 
@@ -64,8 +64,8 @@ function HomeStack() {
         component={TimerScreen} 
         options={{ 
           title: 'Sesión de Enfoque',
-          headerBackVisible: false, // Evita salir accidentalmente durante un Pomodoro
-          gestureEnabled: false      // Bloquea el swipe para regresar en iOS
+          headerBackVisible: false,
+          gestureEnabled: false
         }} 
       />
     </Stack.Navigator>
@@ -80,16 +80,33 @@ function CalendarStack() {
   return (
     <Stack.Navigator 
       screenOptions={{ 
-        headerStyle: { backgroundColor: '#121212' }, 
-        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: '#1a1a2e' }, 
+        headerTintColor: '#f1f5f9',
         animation: 'fade_from_bottom'
       }}
     >
-      <Stack.Screen name="Calendario" component={CalendarScreen} />
+      <Stack.Screen 
+        name="Calendario" 
+        component={CalendarScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen 
         name="DetalleDia" 
         component={DayDetailScreen} 
-        options={({ route }) => ({ title: route.params.date })} 
+        options={({ route }) => ({ 
+          title: 'Detalle del Día',
+          headerStyle: { backgroundColor: '#1a1a2e' },
+        })} 
+      />
+      <Stack.Screen 
+        name="AddTask" 
+        component={AddTaskScreen} 
+        options={{ title: 'Nueva Tarea' }} 
+      />
+      <Stack.Screen 
+        name="TaskDetail" 
+        component={TaskDetailScreen} 
+        options={{ title: 'Detalle de Tarea' }} 
       />
     </Stack.Navigator>
   );
@@ -116,14 +133,19 @@ export default function App() {
               }
               return <Ionicons name={iconName} size={size} color={color} />;
             },
-            tabBarActiveTintColor: '#4CAF50',
-            tabBarInactiveTintColor: 'gray',
+            tabBarActiveTintColor: '#4ade80',
+            tabBarInactiveTintColor: '#64748b',
             tabBarStyle: { 
-              backgroundColor: '#1a1a1a', 
-              borderTopWidth: 0,
-              height: Platform.OS === 'ios' ? 85 : 80,
-              paddingBottom: Platform.OS === 'ios' ? 30 : 25,
-              paddingTop: 5
+              backgroundColor: '#0f0f23', 
+              borderTopWidth: 1,
+              borderTopColor: 'rgba(71, 85, 105, 0.3)',
+              height: Platform.OS === 'ios' ? 85 : 70,
+              paddingBottom: Platform.OS === 'ios' ? 30 : 15,
+              paddingTop: 10
+            },
+            tabBarLabelStyle: {
+              fontSize: 12,
+              fontWeight: '600',
             },
             headerShown: false,
           })}
