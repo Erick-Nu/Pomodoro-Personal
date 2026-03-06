@@ -12,7 +12,7 @@ LocaleConfig.locales['es'] = {
 };
 LocaleConfig.defaultLocale = 'es';
 
-export default function CalendarScreen() {
+export default function CalendarScreen({ navigation }) {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [tareasDelDia, setTareasDelDia] = useState([]);
 
@@ -25,7 +25,10 @@ export default function CalendarScreen() {
   return (
     <View style={styles.container}>
       <Calendar
-        onDayPress={day => navigation.navigate('DetalleDia', { date: day.dateString })}
+        onDayPress={day => {
+          setSelectedDate(day.dateString);
+          navigation.navigate('DetalleDia', { date: day.dateString });
+        }}
         markedDates={{
           [selectedDate]: { selected: true, selectedColor: '#4CAF50' }
         }}
