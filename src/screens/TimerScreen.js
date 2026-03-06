@@ -4,12 +4,20 @@ import { useTimer } from '../hooks/useTimer';
 import { actualizarProgresoTarea } from '../database/db_queries';
 import { registerForPushNotificationsAsync, sendLocalNotification } from '../hooks/useNotifications';
 import { Ionicons } from '@expo/vector-icons';
+import Svg, { Circle } from 'react-native-svg';
 
 export default function TimerScreen({ route, navigation }) {
   const { tarea } = route.params;
   const [modo, setModo] = useState(60); 
   
   const { formatTime, isActive, toggle, reset, seconds } = useTimer(modo);
+
+  // Configuración del círculo de progreso
+  const totalSeconds = modo * 60;
+  const radius = 120;
+  const circumference = 2 * Math.PI * radius;
+  const progress = seconds / totalSeconds;
+  const strokeDashoffset = circumference * (1 - progress);
 
   useEffect(() => {
     registerForPushNotificationsAsync();
@@ -54,8 +62,22 @@ export default function TimerScreen({ route, navigation }) {
         </View>
       </View>
 
-      {/* Reloj Circular */}
+      {/* Reloj Circular con Progreso SVG */}
       <View style={styles.timerCircle}>
+        <Svg width="280" height="280" style={styles.svg}>
+          <Circle
+            cx="140" cy="140" r={radius}
+            stroke="#1e1e1e" strokeWidth="8" fill="transparent"
+          />
+          <Circle
+            cx="140" cy="140" r={radius}
+            stroke="#4CAF50" strokeWidth="8" fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            transform="rotate(-90 140 140)"
+          />
+        </Svg>
         <Text style={styles.timeText}>{formatTime()}</Text>
         <Text style={styles.labelStatus}>{isActive ? 'ENFOQUE' : 'LISTO'}</Text>
       </View>
@@ -109,11 +131,10 @@ const styles = StyleSheet.create({
   
   timerCircle: { 
     width: 280, height: 280, borderRadius: 140, 
-    borderWidth: 4, borderColor: '#4CAF50', 
     justifyContent: 'center', alignItems: 'center', 
     marginBottom: 40, backgroundColor: '#181818',
-    shadowColor: '#4CAF50', shadowOpacity: 0.2, shadowRadius: 10, elevation: 5
   },
+  svg: { position: 'absolute' },
   timeText: { color: '#fff', fontSize: 70, fontWeight: '200', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' },
   labelStatus: { color: '#4CAF50', fontSize: 14, letterSpacing: 2, marginTop: -5 },
 

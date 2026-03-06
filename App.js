@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // --- IMPORTACIÓN DE PANTALLAS ---
 import HomeScreen from './src/screens/HomeScreen';
@@ -95,41 +97,43 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <Tab.Navigator 
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
-            if (route.name === 'HomeStack') {
-              iconName = 'home';
-            } else if (route.name === 'CalendarioTab') {
-              iconName = 'calendar';
-            }
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: '#4CAF50',
-          tabBarInactiveTintColor: 'gray',
-          tabBarStyle: { 
-            backgroundColor: '#1a1a1a', 
-            borderTopWidth: 0,
-            height: 65,
-            paddingBottom: 10,
-            paddingTop: 5
-          },
-          headerShown: false,
-        })}
-      >
-        <Tab.Screen 
-          name="HomeStack" 
-          component={HomeStack} 
-          options={{ title: 'Hoy' }} 
-        />
-        <Tab.Screen 
-          name="CalendarioTab" 
-          component={CalendarStack} 
-          options={{ title: 'Historial' }} 
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Tab.Navigator 
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ color, size }) => {
+              let iconName;
+              if (route.name === 'HomeStack') {
+                iconName = 'home';
+              } else if (route.name === 'CalendarioTab') {
+                iconName = 'calendar';
+              }
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: '#4CAF50',
+            tabBarInactiveTintColor: 'gray',
+            tabBarStyle: { 
+              backgroundColor: '#1a1a1a', 
+              borderTopWidth: 0,
+              height: Platform.OS === 'ios' ? 85 : 65,
+              paddingBottom: Platform.OS === 'ios' ? 30 : 10,
+              paddingTop: 5
+            },
+            headerShown: false,
+          })}
+        >
+          <Tab.Screen 
+            name="HomeStack" 
+            component={HomeStack} 
+            options={{ title: 'Hoy' }} 
+          />
+          <Tab.Screen 
+            name="CalendarioTab" 
+            component={CalendarStack} 
+            options={{ title: 'Historial' }} 
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
