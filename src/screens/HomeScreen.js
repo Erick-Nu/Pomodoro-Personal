@@ -29,8 +29,7 @@ export default function HomeScreen({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.card} 
-            // Navegamos al Timer pasando el objeto de la tarea
-            onPress={() => navigation.navigate('Timer', { tarea: item })}
+            onPress={() => navigation.navigate('TaskDetail', { tarea: item })}
           >
             <View style={styles.cardHeader}>
               <Text style={styles.taskTitle}>{item.nombre}</Text>

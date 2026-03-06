@@ -13,6 +13,7 @@ import CalendarScreen from './src/screens/CalendarScreen';
 import DayDetailScreen from './src/screens/DayDetailScreen';
 import AddTaskScreen from './src/screens/AddTaskScreen';
 import TimerScreen from './src/screens/TimerScreen';
+import TaskDetailScreen from './src/screens/TaskDetailScreen';
 
 // --- SERVICIOS LOCALES ---
 import { initDatabase } from './src/database/db_pomodoro';
@@ -47,6 +48,11 @@ function HomeStack() {
         name="Inicio" 
         component={HomeScreen} 
         options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="TaskDetail" 
+        component={TaskDetailScreen} 
+        options={{ title: 'Detalle de Tarea' }} 
       />
       <Stack.Screen 
         name="AddTask" 
