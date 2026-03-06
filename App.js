@@ -3,25 +3,42 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications';
 
+// --- IMPORTACIÓN DE PANTALLAS ---
 import HomeScreen from './src/screens/HomeScreen';
 import CalendarScreen from './src/screens/CalendarScreen';
 import DayDetailScreen from './src/screens/DayDetailScreen';
 import AddTaskScreen from './src/screens/AddTaskScreen';
 import TimerScreen from './src/screens/TimerScreen';
 
-import { initDatabase } from './src/database/db';
+// --- SERVICIOS LOCALES ---
+import { initDatabase } from './src/database/db_pomodoro';
+
+// Configuración global de notificaciones para que funcionen con la app abierta
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldVibrate: true,
+  }),
+});
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+/**
+ * Stack para la sección principal (Home).
+ * Gestiona el flujo desde la lista de hoy hasta la creación y el cronómetro.
+ */
 function HomeStack() {
   return (
     <Stack.Navigator 
       screenOptions={{ 
         headerStyle: { backgroundColor: '#121212' }, 
         headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' }
+        headerTitleStyle: { fontWeight: 'bold' },
+        animation: 'slide_from_right' // Animación nativa de Android
       }}
     >
       <Stack.Screen 
@@ -37,18 +54,27 @@ function HomeStack() {
       <Stack.Screen 
         name="Timer" 
         component={TimerScreen} 
-        options={{ title: 'Sesión de Enfoque' }} 
+        options={{ 
+          title: 'Sesión de Enfoque',
+          headerBackVisible: false, // Evita salir accidentalmente durante un Pomodoro
+          gestureEnabled: false      // Bloquea el swipe para regresar en iOS
+        }} 
       />
     </Stack.Navigator>
   );
 }
 
+/**
+ * Stack para el Calendario.
+ * Gestiona la navegación entre la vista mensual y el detalle diario.
+ */
 function CalendarStack() {
   return (
     <Stack.Navigator 
       screenOptions={{ 
         headerStyle: { backgroundColor: '#121212' }, 
-        headerTintColor: '#fff' 
+        headerTintColor: '#fff',
+        animation: 'fade_from_bottom'
       }}
     >
       <Stack.Screen name="Calendario" component={CalendarScreen} />
@@ -64,6 +90,7 @@ function CalendarStack() {
 export default function App() {
   
   useEffect(() => {
+    // 1. Inicializar SQLite al arrancar el APK
     initDatabase();
   }, []);
 
@@ -85,8 +112,9 @@ export default function App() {
           tabBarStyle: { 
             backgroundColor: '#1a1a1a', 
             borderTopWidth: 0,
-            height: 60,
-            paddingBottom: 8
+            height: 65,
+            paddingBottom: 10,
+            paddingTop: 5
           },
           headerShown: false,
         })}

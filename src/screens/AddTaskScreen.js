@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { crearTarea } from '../database/queries';
+import { crearTarea } from '../database/db_queries';
 
 export default function AddTaskScreen({ navigation, route }) {
   const { initialDate } = route.params || { initialDate: new Date().toISOString().split('T')[0] };

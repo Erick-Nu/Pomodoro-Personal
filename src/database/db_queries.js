@@ -1,4 +1,4 @@
-import db from './db';
+import db from './db_pomodoro';
 
 export const crearTarea = (nombre, descripcion, fecha, tiempoRegistrado) => {
   return db.runSync(
