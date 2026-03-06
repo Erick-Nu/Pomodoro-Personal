@@ -5,10 +5,14 @@ import { actualizarProgresoTarea } from '../database/db_queries';
 import { registerForPushNotificationsAsync, sendLocalNotification } from '../hooks/useNotifications';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle } from 'react-native-svg';
+import { Audio } from 'expo-av';
+import * as MediaLibrary from 'expo-media-library';
 
 export default function TimerScreen({ route, navigation }) {
   const { tarea } = route.params;
   const [modo, setModo] = useState(60); 
+  const [sound, setSound] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const { formatTime, isActive, toggle, reset, seconds } = useTimer(modo);
 
@@ -22,6 +26,38 @@ export default function TimerScreen({ route, navigation }) {
   useEffect(() => {
     registerForPushNotificationsAsync();
   }, []);
+
+  // Limpiar el sonido al desmontar
+  useEffect(() => {
+    return sound
+      ? () => { sound.unloadAsync(); }
+      : undefined;
+  }, [sound]);
+
+  async function playMusic() {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert("Permiso denegado", "Necesitamos acceso a tus archivos para reproducir música.");
+      return;
+    }
+
+    const media = await MediaLibrary.getAssetsAsync({ mediaType: 'audio' });
+    if (media.assets.length > 0) {
+      const { sound: newSound } = await Audio.Sound.createAsync({ uri: media.assets[0].uri });
+      setSound(newSound);
+      await newSound.playAsync();
+      setIsPlaying(true);
+    } else {
+      Alert.alert("Sin música", "No se encontraron archivos de audio en el dispositivo.");
+    }
+  }
+
+  async function pauseMusic() {
+    if (sound) {
+      await sound.pauseAsync();
+      setIsPlaying(false);
+    }
+  }
 
   useEffect(() => {
     if (seconds === 0 && isActive) {
@@ -54,6 +90,15 @@ export default function TimerScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Control de Música */}
+      <View style={styles.musicCard}>
+        <Ionicons name="musical-notes" size={20} color="#4CAF50" />
+        <Text style={styles.musicTitle}>Música de ambiente</Text>
+        <TouchableOpacity onPress={isPlaying ? pauseMusic : playMusic}>
+          <Ionicons name={isPlaying ? "pause" : "play"} size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+
       {/* Información de la Tarea */}
       <View style={styles.header}>
         <Text style={styles.taskName}>{tarea.nombre}</Text>
@@ -124,6 +169,17 @@ export default function TimerScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121212', alignItems: 'center', justifyContent: 'center', padding: 20 },
+  musicCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#1e1e1e', 
+    padding: 12, 
+    borderRadius: 12, 
+    gap: 10, 
+    marginBottom: 20,
+    width: '85%'
+  },
+  musicTitle: { color: '#fff', flex: 1, fontSize: 14 },
   header: { alignItems: 'center', marginBottom: 40 },
   taskName: { color: '#fff', fontSize: 26, fontWeight: 'bold', textAlign: 'center' },
   metaBadge: { backgroundColor: '#1b2e1b', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginTop: 10 },
