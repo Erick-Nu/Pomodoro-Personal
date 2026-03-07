@@ -43,7 +43,7 @@ const MyTheme = {
 };
 
 const commonStackOptions = {
-  headerStyle: { backgroundColor: COLORS.white },
+  headerStyle: { backgroundColor: COLORS.card },
   headerTintColor: COLORS.textMain,
   headerTitleStyle: { fontWeight: '700', fontSize: 17 },
   headerShadowVisible: false,
@@ -105,10 +105,10 @@ function TabNavigator() {
         tabBarActiveTintColor: COLORS.secondary,
         tabBarInactiveTintColor: COLORS.textMuted,
         tabBarStyle: { 
-          backgroundColor: COLORS.white, 
+          backgroundColor: COLORS.card, 
           borderTopWidth: 1,
           borderTopColor: COLORS.border,
-          height: 60 + insets.bottom, // Ajuste dinámico para evitar el bug de "navbar roto"
+          height: 60 + insets.bottom,
           paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
           paddingTop: 10,
           elevation: 0,
