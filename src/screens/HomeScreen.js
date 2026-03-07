@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { obtenerTareasPorFecha } from '../database/db_queries';
+import { getTasksByDate } from '../database/db_queries_task';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
@@ -37,7 +37,7 @@ export default function HomeScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      const data = obtenerTareasPorFecha(hoy);
+      const data = getTasksByDate(hoy);
       setTareasHoy(data);
     }, [hoy])
   );

@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import * as MediaLibrary from 'expo-media-library';
 import { useTimer } from '../hooks/useTimer'; 
-import { actualizarProgresoTarea } from '../database/db_queries';
+import { updateProgressTask } from '../database/db_queries_task';
 import { registerForPushNotificationsAsync, sendLocalNotification } from '../hooks/useNotifications';
 
 const { width } = Dimensions.get('window');
@@ -308,7 +308,7 @@ export default function TimerScreen({ route, navigation }) {
   };
 
   const finalizarYGuardar = () => {
-    actualizarProgresoTarea(tarea.id, modo);
+    updateProgressTask(tarea.id, modo);
     navigation.goBack();
   };
 

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Svg, { Path, Circle } from 'react-native-svg';
-import { obtenerTareasPorFecha } from '../database/db_queries';
+import { getTasksByDate } from '../database/db_queries_task';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
@@ -55,7 +55,7 @@ export default function CalendarScreen({ navigation }) {
   const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
-    const tareas = obtenerTareasPorFecha(selectedDate);
+    const tareas = getTasksByDate(selectedDate);
     setTareasDelDia(tareas);
     Animated.timing(listOpacity, { toValue: 1, duration: 400, useNativeDriver: true }).start();
   }, [selectedDate]);

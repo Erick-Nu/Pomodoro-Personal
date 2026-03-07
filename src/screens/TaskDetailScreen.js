@@ -17,7 +17,8 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle } from 'react-native-svg';
-import { obtenerNotasDeTarea, agregarNota, eliminarTarea } from '../database/db_queries';
+import { deleteTask } from '../database/db_queries_task';
+import { getNotesByTaskId, createNote } from '../database/db_queries_note';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 
 // Iconos SVG personalizados
@@ -76,7 +77,7 @@ export default function TaskDetailScreen({ route, navigation }) {
   const [nuevoContenido, setNuevoContenido] = useState('');
 
   const cargarNotas = useCallback(() => {
-    const data = obtenerNotasDeTarea(tarea.id);
+    const data = getNotesByTaskId(tarea.id);
     setNotas(data);
   }, [tarea.id]);
 
@@ -87,7 +88,7 @@ export default function TaskDetailScreen({ route, navigation }) {
       Alert.alert("⚠️ Campos incompletos", "Por favor completa el título y el contenido.");
       return;
     }
-    agregarNota(tarea.id, nuevoTitulo, nuevoContenido, 'nota');
+    createNote(tarea.id, nuevoTitulo, nuevoContenido, 'nota');
     setModalVisible(false);
     setNuevoTitulo('');
     setNuevoContenido('');
@@ -98,7 +99,7 @@ export default function TaskDetailScreen({ route, navigation }) {
     Alert.alert("🗑️ Eliminar", "¿Estás seguro de eliminar esta tarea?", [
       { text: "Cancelar", style: "cancel" },
       { text: "Eliminar", style: "destructive", onPress: () => {
-        eliminarTarea(tarea.id);
+        deleteTask(tarea.id);
         navigation.goBack();
       }}
     ]);

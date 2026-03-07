@@ -14,7 +14,8 @@ import {
   StatusBar
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
-import { obtenerTareasPorFecha, obtenerNotasDeTarea, agregarNota } from '../database/db_queries';
+import { getTasksByDate } from '../database/db_queries_task';
+import { getNotesByTaskId, createNote } from '../database/db_queries_note';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 
 // Iconos SVG personalizados
@@ -61,9 +62,9 @@ export default function DayDetailScreen({ route, navigation }) {
   const today = new Date().toISOString().split('T')[0];
 
   const cargarDatos = () => {
-    const tareas = obtenerTareasPorFecha(date);
+    const tareas = getTasksByDate(date);
     const datosCompletos = tareas.map(tarea => {
-      const notas = obtenerNotasDeTarea(tarea.id);
+      const notas = getNotesByTaskId(tarea.id);
       return { ...tarea, notas };
     });
     setTareasConNotas(datosCompletos);
@@ -76,7 +77,7 @@ export default function DayDetailScreen({ route, navigation }) {
       Alert.alert("⚠️ Error", "Completa todos los campos");
       return;
     }
-    agregarNota(selectedTareaId, nuevoTitulo, nuevoContenido, 'conclusión');
+    createNote(selectedTareaId, nuevoTitulo, nuevoContenido, 'conclusión');
     setModalVisible(false);
     setNuevoTitulo('');
     setNuevoContenido('');

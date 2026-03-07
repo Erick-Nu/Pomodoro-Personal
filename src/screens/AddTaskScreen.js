@@ -14,7 +14,7 @@ import {
   StatusBar
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
-import { crearTarea } from '../database/db_queries';
+import { createTask } from '../database/db_queries_task';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
@@ -86,7 +86,7 @@ export default function AddTaskScreen({ navigation, route }) {
     const tiempoEnMinutos = parseInt(horas) * 60; 
     
     try {
-      crearTarea(nombre, descripcion, initialDate, tiempoEnMinutos);
+      createTask(nombre, descripcion, initialDate, tiempoEnMinutos);
       Alert.alert("✅ Tarea creada", `"${nombre}" ha sido programada.`, [
         { text: "OK", onPress: () => navigation.goBack() }
       ]);
