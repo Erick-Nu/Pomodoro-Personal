@@ -10,45 +10,22 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Animated,
-  StatusBar
+  StatusBar,
+  Dimensions
 } from 'react-native';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { createTask } from '../database/db_queries_task';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 import { RootStackParamList } from '../types';
+
+const { width } = Dimensions.get('window');
 
 interface AddTaskScreenProps {
   navigation: NavigationProp<RootStackParamList>;
   route: RouteProp<RootStackParamList, 'AddTask'>;
 }
-
-const TaskIcon = ({ size = 20, color = COLORS.textMuted }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
-    <Path d="M9 5a2 2 0 012-2h2a2 2 0 012 2v0a2 2 0 01-2 2h-2a2 2 0 01-2-2v0z" stroke={color} strokeWidth={2}/>
-    <Path d="M9 12l2 2 4-4" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
-  </Svg>
-);
-
-const DescriptionIcon = ({ size = 20, color = COLORS.textMuted }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M4 6h16M4 10h16M4 14h10M4 18h6" stroke={color} strokeWidth={2} strokeLinecap="round"/>
-  </Svg>
-);
-
-const ClockIcon = ({ size = 20, color = COLORS.textMuted }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Circle cx="12" cy="12" r="9" stroke={color} strokeWidth={2}/>
-    <Path d="M12 6v6l4 2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
-  </Svg>
-);
-
-const CalendarIcon = ({ size = 18, color = COLORS.secondary }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={color} strokeWidth={2} strokeLinecap="round"/>
-  </Svg>
-);
 
 export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps) {
   const { initialDate } = route.params || { initialDate: new Date().toISOString().split('T')[0] };
@@ -59,13 +36,21 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   
   const formOpacity = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
-    Animated.timing(formOpacity, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.timing(formOpacity, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      })
+    ]).start();
   }, []);
 
   const formatDate = (dateString: string): string => {
@@ -76,12 +61,12 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
 
   const handleSave = () => {
     if (!nombre.trim()) {
-      Alert.alert("📝 Nombre requerido", "Dale un nombre a tu tarea.");
+      Alert.alert("Nombre requerido", "Por favor, asigna un nombre a la tarea.");
       return;
     }
     
     if (!horas || parseInt(horas) <= 0) {
-      Alert.alert("⏱️ Tiempo requerido", "Indica las horas estimadas.");
+      Alert.alert("Tiempo requerido", "Indica las horas estimadas para esta tarea.");
       return;
     }
 
@@ -89,12 +74,12 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
     
     try {
       createTask(nombre, descripcion, initialDate!, tiempoEnMinutos);
-      Alert.alert("✅ Tarea creada", `"${nombre}" ha sido programada.`, [
-        { text: "OK", onPress: () => navigation.goBack() }
+      Alert.alert("Tarea creada", `"${nombre}" ha sido programada correctamente.`, [
+        { text: "Entendido", onPress: () => navigation.goBack() }
       ]);
     } catch (error) {
       console.error(error);
-      Alert.alert("❌ Error", "No se pudo guardar la tarea.");
+      Alert.alert("Error", "No se pudo guardar la tarea en este momento.");
     }
   };
 
@@ -104,83 +89,118 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" />
+        
         <ScrollView 
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={[styles.dateCard, SHADOWS.light]}>
-            <View style={styles.dateIconWrapper}>
-              <CalendarIcon />
-            </View>
-            <View>
-              <Text style={styles.dateLabel}>Programando para</Text>
-              <Text style={styles.dateValue}>{formatDate(initialDate!)}</Text>
+          {/* Calendar Header Indicator */}
+          <View style={styles.infoSection}>
+            <View style={styles.dateBadge}>
+              <Ionicons name="calendar" size={24} color={COLORS.white} style={styles.dateIcon} />
+              <View>
+                <Text style={styles.infoLabel}>Programando para</Text>
+                <Text style={styles.infoValue}>{formatDate(initialDate!)}</Text>
+              </View>
             </View>
           </View>
 
-          <Animated.View style={[styles.form, { opacity: formOpacity }]}>
+          <Animated.View style={[styles.formContainer, { opacity: formOpacity, transform: [{ translateY: slideAnim }] }]}>
+            {/* Input: Nombre */}
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, focusedInput === 'nombre' && styles.labelActive]}>Nombre de la tarea</Text>
-              <View style={[styles.inputWrapper, focusedInput === 'nombre' && styles.inputWrapperActive]}>
-                <TaskIcon color={focusedInput === 'nombre' ? COLORS.secondary : COLORS.textMuted} />
-                <TextInput 
-                  style={styles.input}
-                  value={nombre}
-                  onChangeText={setNombre}
-                  onFocus={() => setFocusedInput('nombre')}
-                  onBlur={() => setFocusedInput(null)}
-                  placeholder="Ej: Estudiar TypeScript"
-                  placeholderTextColor={COLORS.textMuted}
+              <View style={styles.labelRow}>
+                <Ionicons 
+                  name="bookmark-outline" 
+                  size={16} 
+                  color={focusedInput === 'nombre' ? COLORS.secondary : COLORS.textMuted} 
                 />
+                <Text style={[styles.label, focusedInput === 'nombre' && styles.labelActive]}>Título de la tarea</Text>
               </View>
+              <TextInput 
+                style={[styles.input, focusedInput === 'nombre' && styles.inputFocused]}
+                value={nombre}
+                onChangeText={setNombre}
+                onFocus={() => setFocusedInput('nombre')}
+                onBlur={() => setFocusedInput(null)}
+                placeholder="Ej: Análisis de mercado"
+                placeholderTextColor={COLORS.textMuted}
+                selectionColor={COLORS.secondary}
+              />
             </View>
 
+            {/* Input: Descripción */}
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, focusedInput === 'descripcion' && styles.labelActive]}>Descripción (opcional)</Text>
-              <View style={[styles.inputWrapper, styles.textAreaWrapper, focusedInput === 'descripcion' && styles.inputWrapperActive]}>
-                <DescriptionIcon color={focusedInput === 'descripcion' ? COLORS.secondary : COLORS.textMuted} />
-                <TextInput 
-                  style={[styles.input, styles.textArea]}
-                  value={descripcion}
-                  onChangeText={setDescripcion}
-                  onFocus={() => setFocusedInput('descripcion')}
-                  onBlur={() => setFocusedInput(null)}
-                  multiline
-                  numberOfLines={4}
-                  placeholder="Detalles adicionales..."
-                  placeholderTextColor={COLORS.textMuted}
+              <View style={styles.labelRow}>
+                <Ionicons 
+                  name="reader-outline" 
+                  size={16} 
+                  color={focusedInput === 'descripcion' ? COLORS.secondary : COLORS.textMuted} 
                 />
+                <Text style={[styles.label, focusedInput === 'descripcion' && styles.labelActive]}>Descripción</Text>
+                <Text style={styles.optionalText}>(Opcional)</Text>
               </View>
+              <TextInput 
+                style={[styles.input, styles.textArea, focusedInput === 'descripcion' && styles.inputFocused]}
+                value={descripcion}
+                onChangeText={setDescripcion}
+                onFocus={() => setFocusedInput('descripcion')}
+                onBlur={() => setFocusedInput(null)}
+                multiline
+                numberOfLines={4}
+                placeholder="Detalla los objetivos o pasos a seguir..."
+                placeholderTextColor={COLORS.textMuted}
+                selectionColor={COLORS.secondary}
+              />
             </View>
 
+            {/* Input: Tiempo */}
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, focusedInput === 'tiempo' && styles.labelActive]}>Tiempo estimado</Text>
-              <View style={styles.timeRow}>
-                <View style={[styles.inputWrapper, styles.timeInputWrapper, focusedInput === 'tiempo' && styles.inputWrapperActive]}>
-                  <ClockIcon color={focusedInput === 'tiempo' ? COLORS.secondary : COLORS.textMuted} />
-                  <TextInput 
-                    style={styles.input}
-                    value={horas}
-                    onChangeText={setHoras}
-                    onFocus={() => setFocusedInput('tiempo')}
-                    onBlur={() => setFocusedInput(null)}
-                    keyboardType="numeric"
-                    placeholder="0"
-                    placeholderTextColor={COLORS.textMuted}
-                    maxLength={2}
-                  />
+              <View style={styles.labelRow}>
+                <Ionicons 
+                  name="time-outline" 
+                  size={16} 
+                  color={focusedInput === 'tiempo' ? COLORS.secondary : COLORS.textMuted} 
+                />
+                <Text style={[styles.label, focusedInput === 'tiempo' && styles.labelActive]}>Inversión de tiempo</Text>
+              </View>
+              <View style={styles.timeInputRow}>
+                <TextInput 
+                  style={[styles.input, styles.timeInput, focusedInput === 'tiempo' && styles.inputFocused]}
+                  value={horas}
+                  onChangeText={setHoras}
+                  onFocus={() => setFocusedInput('tiempo')}
+                  onBlur={() => setFocusedInput(null)}
+                  keyboardType="numeric"
+                  placeholder="0"
+                  placeholderTextColor={COLORS.textMuted}
+                  maxLength={2}
+                  selectionColor={COLORS.secondary}
+                />
+                <View style={styles.timeUnitContainer}>
+                  <Text style={styles.timeUnitText}>Horas estimadas</Text>
+                  <Text style={styles.pomodoroHint}>Equivale a {Math.ceil((parseInt(horas) || 0) * 60 / 25)} pomodoros</Text>
                 </View>
-                <Text style={styles.timeUnit}>horas</Text>
               </View>
             </View>
 
+            {/* Action Button */}
             <TouchableOpacity 
-              style={[styles.saveBtn, !isFormValid && styles.saveBtnDisabled, SHADOWS.medium]} 
+              style={[styles.submitBtnContainer, !isFormValid && styles.btnDisabled]} 
               onPress={handleSave}
               disabled={!isFormValid}
+              activeOpacity={0.8}
             >
-              <Text style={styles.saveBtnText}>Crear Tarea</Text>
+              <LinearGradient
+                colors={isFormValid ? [COLORS.secondary, '#1D4ED8'] : [COLORS.border, COLORS.border]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.submitBtn}
+              >
+                <Text style={[styles.submitBtnText, !isFormValid && { color: COLORS.textMuted }]}>
+                  Crear Tarea
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
         </ScrollView>
@@ -190,38 +210,68 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.primary },
+  container: { flex: 1, backgroundColor: COLORS.white },
   scrollContent: { padding: SPACING.lg, paddingTop: 20 },
-  dateCard: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
-    padding: SPACING.md, borderRadius: RADIUS.md, marginBottom: SPACING.xl,
-    borderWidth: 1, borderColor: COLORS.border
+  
+  infoSection: { marginBottom: 35 },
+  dateBadge: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.secondary, 
+    padding: 20, 
+    borderRadius: RADIUS.md,
+    overflow: 'hidden', // Evita que el fondo blanco se filtre por las esquinas
+    borderWidth: 0, // Eliminamos borde para evitar fugas visuales
   },
-  dateIconWrapper: { 
-    width: 40, height: 40, borderRadius: RADIUS.sm, backgroundColor: COLORS.secondaryLight, 
-    justifyContent: 'center', alignItems: 'center', marginRight: 12 
+  dateIcon: { 
+    marginRight: 15,
   },
-  dateLabel: { color: COLORS.textMuted, fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
-  dateValue: { color: COLORS.textMain, fontSize: 16, fontWeight: '700', textTransform: 'capitalize' },
-  form: { flex: 1 },
-  inputGroup: { marginBottom: SPACING.lg },
-  label: { color: COLORS.textMain, fontSize: 14, fontWeight: '600', marginBottom: 8, marginLeft: 4 },
+  infoLabel: { color: 'rgba(255, 255, 255, 0.8)', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  infoValue: { color: COLORS.white, fontSize: 18, fontWeight: '800', textTransform: 'capitalize', marginTop: 2 },
+
+  formContainer: { flex: 1 },
+  inputGroup: { marginBottom: 25 },
+  labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8, paddingLeft: 4 },
+  label: { color: COLORS.textMain, fontSize: 15, fontWeight: '700' },
   labelActive: { color: COLORS.secondary },
-  inputWrapper: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
-    borderRadius: RADIUS.md, paddingHorizontal: 16, borderWidth: 1.5, borderColor: COLORS.border 
+  optionalText: { color: COLORS.textMuted, fontSize: 12, fontWeight: '500', marginLeft: 4 },
+  
+  input: { 
+    backgroundColor: COLORS.primary, 
+    borderRadius: RADIUS.md, 
+    paddingHorizontal: 18, 
+    paddingVertical: 16, 
+    fontSize: 16, 
+    color: COLORS.textMain,
+    fontWeight: '500',
+    borderWidth: 1.5,
+    borderColor: COLORS.border
   },
-  inputWrapperActive: { borderColor: COLORS.secondary },
-  input: { flex: 1, paddingVertical: 14, marginLeft: 12, color: COLORS.textMain, fontSize: 16, fontWeight: '500' },
-  textAreaWrapper: { alignItems: 'flex-start', paddingTop: 14 },
-  textArea: { textAlignVertical: 'top', height: 100 },
-  timeRow: { flexDirection: 'row', alignItems: 'center' },
-  timeInputWrapper: { width: 100 },
-  timeUnit: { marginLeft: 12, color: COLORS.textMuted, fontSize: 16, fontWeight: '600' },
-  saveBtn: { 
-    backgroundColor: COLORS.secondary, paddingVertical: 18, borderRadius: RADIUS.md, 
-    alignItems: 'center', marginTop: SPACING.lg 
+  inputFocused: { 
+    borderColor: COLORS.secondary,
+    backgroundColor: COLORS.white,
   },
-  saveBtnDisabled: { backgroundColor: COLORS.border, opacity: 0.5 },
-  saveBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '700' }
+  textArea: { textAlignVertical: 'top', height: 120, paddingTop: 16 },
+  
+  timeInputRow: { flexDirection: 'row', alignItems: 'center' },
+  timeInput: { width: 80, textAlign: 'center', fontSize: 24, fontWeight: '800' },
+  timeUnitContainer: { marginLeft: 18 },
+  timeUnitText: { color: COLORS.textMain, fontSize: 16, fontWeight: '700' },
+  pomodoroHint: { color: COLORS.textMuted, fontSize: 12, fontWeight: '500', marginTop: 2 },
+
+  submitBtnContainer: { 
+    marginTop: 20, 
+    borderRadius: RADIUS.md, 
+    overflow: 'hidden',
+    ...SHADOWS.medium 
+  },
+  submitBtn: { 
+    flexDirection: 'row', 
+    paddingVertical: 18, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    gap: 10 
+  },
+  submitBtnText: { color: COLORS.white, fontSize: 17, fontWeight: '800', letterSpacing: 0.5 },
+  btnDisabled: { opacity: 0.6, elevation: 0, shadowOpacity: 0 }
 });
