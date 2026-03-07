@@ -176,7 +176,7 @@ export default function TimerScreen({ route, navigation }) {
       setIsLoadingMusic(true);
       
       if (!cancionSeleccionada) {
-        Alert.alert("🎵 Sin música", "No hay canciones disponibles. Verifica los permisos.");
+        Alert.alert("Sin música", "No hay canciones disponibles. Verifica los permisos de la aplicación.");
         setIsLoadingMusic(false);
         return;
       }
@@ -203,7 +203,7 @@ export default function TimerScreen({ route, navigation }) {
       }
     } catch (error) {
       console.error('Error reproduciendo música:', error);
-      Alert.alert("❌ Error", "No se pudo reproducir el archivo de audio.");
+      Alert.alert("Error", "No se pudo reproducir el archivo de audio. Intenta con otro archivo.");
     } finally {
       setIsLoadingMusic(false);
     }
@@ -302,7 +302,7 @@ export default function TimerScreen({ route, navigation }) {
       setIsPlaying(false);
     }
     
-    await sendLocalNotification("¡Tiempo cumplido! 🏆", `Sumaste ${modo} min a: ${tarea.nombre}`);
+    await sendLocalNotification("¡Tiempo cumplido!", `Completaste ${modo} minutos trabajando en: ${tarea.nombre}`);
     finalizarYGuardar();
   };
 
@@ -334,7 +334,7 @@ export default function TimerScreen({ route, navigation }) {
   const handleModeChange = (newMode) => {
     if (isActive) {
       Alert.alert(
-        "⏱️ Timer activo",
+        "Timer activo",
         "¿Deseas cambiar el modo? Se reiniciará el temporizador.",
         [
           { text: "Cancelar", style: "cancel" },
@@ -457,7 +457,7 @@ export default function TimerScreen({ route, navigation }) {
             <Text style={styles.taskLabel} numberOfLines={1}>{tarea.nombre}</Text>
             <View style={styles.modeIndicator}>
               <Text style={styles.modeIndicatorText}>
-                {modo} min • {Math.ceil(modo / 25)} 🍅
+                {modo} min • {Math.ceil(modo / 25)} pomodoros
               </Text>
             </View>
           </View>
