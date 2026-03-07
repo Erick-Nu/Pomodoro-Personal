@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// --- DESIGN SYSTEM ---
+import { COLORS, RADIUS } from './src/styles/theme';
 
 // --- IMPORTACIÓN DE PANTALLAS ---
 import HomeScreen from './src/screens/HomeScreen';
@@ -18,7 +21,7 @@ import TaskDetailScreen from './src/screens/TaskDetailScreen';
 // --- SERVICIOS LOCALES ---
 import { initDatabase } from './src/database/db_pomodoro';
 
-// Configuración global de notificaciones para que funcionen con la app abierta
+// Configuración global de notificaciones
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -30,137 +33,100 @@ Notifications.setNotificationHandler({
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-/**
- * Stack para la sección principal (Home).
- * Gestiona el flujo desde la lista de hoy hasta la creación y el cronómetro.
- */
+// Tema personalizado para el contenedor de navegación
+const MyTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: COLORS.primary,
+    primary: COLORS.secondary,
+  },
+};
+
+const commonStackOptions = {
+  headerStyle: { backgroundColor: COLORS.white },
+  headerTintColor: COLORS.textMain,
+  headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+  headerShadowVisible: false,
+  headerBackTitleVisible: false,
+  animation: 'slide_from_right',
+};
+
 function HomeStack() {
   return (
-    <Stack.Navigator 
-      screenOptions={{ 
-        headerStyle: { backgroundColor: '#1a1a2e' }, 
-        headerTintColor: '#f1f5f9',
-        headerTitleStyle: { fontWeight: 'bold' },
-        animation: 'slide_from_right'
-      }}
-    >
-      <Stack.Screen 
-        name="Inicio" 
-        component={HomeScreen} 
-        options={{ headerShown: false }} 
-      />
-      <Stack.Screen 
-        name="TaskDetail" 
-        component={TaskDetailScreen} 
-        options={{ title: 'Detalle de Tarea' }} 
-      />
-      <Stack.Screen 
-        name="AddTask" 
-        component={AddTaskScreen} 
-        options={{ title: 'Nueva Tarea' }} 
-      />
+    <Stack.Navigator screenOptions={commonStackOptions}>
+      <Stack.Screen name="Inicio" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ title: 'Tarea' }} />
+      <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ title: 'Nueva Tarea' }} />
       <Stack.Screen 
         name="Timer" 
         component={TimerScreen} 
         options={{ 
-          title: 'Sesión de Enfoque',
+          title: 'Enfoque',
           headerBackVisible: false,
-          gestureEnabled: false
+          gestureEnabled: false,
+          headerStyle: { backgroundColor: COLORS.primary }
         }} 
       />
     </Stack.Navigator>
   );
 }
 
-/**
- * Stack para el Calendario.
- * Gestiona la navegación entre la vista mensual y el detalle diario.
- */
 function CalendarStack() {
   return (
-    <Stack.Navigator 
-      screenOptions={{ 
-        headerStyle: { backgroundColor: '#1a1a2e' }, 
-        headerTintColor: '#f1f5f9',
-        animation: 'fade_from_bottom'
-      }}
-    >
-      <Stack.Screen 
-        name="Calendario" 
-        component={CalendarScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen 
-        name="DetalleDia" 
-        component={DayDetailScreen} 
-        options={({ route }) => ({ 
-          title: 'Detalle del Día',
-          headerStyle: { backgroundColor: '#1a1a2e' },
-        })} 
-      />
-      <Stack.Screen 
-        name="AddTask" 
-        component={AddTaskScreen} 
-        options={{ title: 'Nueva Tarea' }} 
-      />
-      <Stack.Screen 
-        name="TaskDetail" 
-        component={TaskDetailScreen} 
-        options={{ title: 'Detalle de Tarea' }} 
-      />
+    <Stack.Navigator screenOptions={commonStackOptions}>
+      <Stack.Screen name="Calendario" component={CalendarScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="DetalleDia" component={DayDetailScreen} options={{ title: 'Historial' }} />
+      <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ title: 'Nueva Tarea' }} />
+      <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ title: 'Tarea' }} />
     </Stack.Navigator>
   );
 }
 
-export default function App() {
+function TabNavigator() {
+  const insets = useSafeAreaInsets();
   
+  return (
+    <Tab.Navigator 
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName = route.name === 'HomeStack' ? 'home' : 'calendar';
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: COLORS.secondary,
+        tabBarInactiveTintColor: COLORS.textMuted,
+        tabBarStyle: { 
+          backgroundColor: COLORS.white, 
+          borderTopWidth: 1,
+          borderTopColor: COLORS.border,
+          height: 60 + insets.bottom, // Ajuste dinámico para evitar el bug de "navbar roto"
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
+          paddingTop: 10,
+          elevation: 0,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '700',
+          marginBottom: 5,
+        },
+        headerShown: false,
+      })}
+    >
+      <Tab.Screen name="HomeStack" component={HomeStack} options={{ title: 'Hoy' }} />
+      <Tab.Screen name="CalendarioTab" component={CalendarStack} options={{ title: 'Historial' }} />
+    </Tab.Navigator>
+  );
+}
+
+export default function App() {
   useEffect(() => {
-    // 1. Inicializar SQLite al arrancar el APK
     initDatabase();
   }, []);
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Tab.Navigator 
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ color, size }) => {
-              let iconName;
-              if (route.name === 'HomeStack') {
-                iconName = 'home';
-              } else if (route.name === 'CalendarioTab') {
-                iconName = 'calendar';
-              }
-              return <Ionicons name={iconName} size={size} color={color} />;
-            },
-            tabBarActiveTintColor: '#4ade80',
-            tabBarInactiveTintColor: '#64748b',
-            tabBarStyle: { 
-              backgroundColor: '#0f0f23', 
-              borderTopWidth: 1,
-              borderTopColor: 'rgba(71, 85, 105, 0.3)',
-              height: Platform.OS === 'ios' ? 85 : 70,
-              paddingBottom: Platform.OS === 'ios' ? 30 : 15,
-              paddingTop: 10
-            },
-            tabBarLabelStyle: {
-              fontSize: 12,
-              fontWeight: '600',
-            },
-            headerShown: false,
-          })}
-        >
-          <Tab.Screen 
-            name="HomeStack" 
-            component={HomeStack} 
-            options={{ title: 'Hoy' }} 
-          />
-          <Tab.Screen 
-            name="CalendarioTab" 
-            component={CalendarStack} 
-            options={{ title: 'Historial' }} 
-          />
-        </Tab.Navigator>
+      <NavigationContainer theme={MyTheme}>
+        <TabNavigator />
       </NavigationContainer>
     </SafeAreaProvider>
   );

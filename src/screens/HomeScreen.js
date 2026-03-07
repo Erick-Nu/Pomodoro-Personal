@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { obtenerTareasPorFecha } from '../database/db_queries';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -46,41 +47,30 @@ export default function HomeScreen({ navigation }) {
     return Math.min((acumulado / registrado) * 100, 100);
   };
 
-  const getProgressColor = (percent) => {
-    if (percent >= 100) return ['#00C853', '#69F0AE'];
-    if (percent >= 50) return ['#4CAF50', '#81C784'];
-    return ['#FF9800', '#FFB74D'];
-  };
-
   const renderTask = ({ item }) => {
     const progress = getProgressPercent(item.tiempo_acumulado, item.tiempo_registrado);
-    const progressColors = getProgressColor(progress);
     const horasAcumuladas = (item.tiempo_acumulado / 60).toFixed(1);
     const horasTotal = (item.tiempo_registrado / 60).toFixed(1);
 
     return (
       <TouchableOpacity 
-        style={styles.card} 
+        style={[styles.card, SHADOWS.light]} 
         onPress={() => navigation.navigate('TaskDetail', { tarea: item })}
         activeOpacity={0.8}
       >
         <View style={styles.cardContent}>
-          <View style={styles.cardLeft}>
-            <View style={[styles.statusIndicator, { backgroundColor: progress >= 100 ? '#00C853' : '#4CAF50' }]} />
-          </View>
-          
           <View style={styles.cardMain}>
             <View style={styles.cardHeader}>
               <Text style={styles.taskTitle} numberOfLines={1}>{item.nombre}</Text>
               <View style={[styles.statusBadge, progress >= 100 && styles.completedBadge]}>
-                <Text style={styles.statusText}>
+                <Text style={[styles.statusText, progress >= 100 && styles.completedStatusText]}>
                   {progress >= 100 ? 'Completada' : item.estado}
                 </Text>
               </View>
             </View>
 
             <View style={styles.timeRow}>
-              <Ionicons name="time-outline" size={14} color="#888" />
+              <Ionicons name="time-outline" size={14} color={COLORS.textMuted} />
               <Text style={styles.timeText}>
                 {horasAcumuladas}h de {horasTotal}h
               </Text>
@@ -88,11 +78,14 @@ export default function HomeScreen({ navigation }) {
             
             <View style={styles.progressContainer}>
               <View style={styles.progressBarBackground}>
-                <LinearGradient
-                  colors={progressColors}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={[styles.progressBarFill, { width: `${progress}%` }]}
+                <View 
+                  style={[
+                    styles.progressBarFill, 
+                    { 
+                      width: `${progress}%`,
+                      backgroundColor: progress >= 100 ? COLORS.secondary : COLORS.accent 
+                    }
+                  ]} 
                 />
               </View>
               <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
@@ -104,10 +97,10 @@ export default function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate('Timer', { tarea: item })}
           >
             <LinearGradient
-              colors={['#4CAF50', '#2E7D32']}
+              colors={[COLORS.secondary, '#368277']}
               style={styles.playGradient}
             >
-              <Ionicons name="play" size={18} color="white" />
+              <Ionicons name="play" size={18} color={COLORS.white} />
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -118,14 +111,14 @@ export default function HomeScreen({ navigation }) {
   const EmptyState = () => (
     <View style={styles.emptyContainer}>
       <View style={styles.emptyIconContainer}>
-        <Ionicons name="leaf-outline" size={60} color="#4CAF50" />
+        <Ionicons name="leaf-outline" size={60} color={COLORS.secondary} />
       </View>
       <Text style={styles.emptyTitle}>Tu día está libre</Text>
       <Text style={styles.emptySubtitle}>
         Crea tu primera tarea y comienza a ser productivo
       </Text>
       <TouchableOpacity 
-        style={styles.emptyButton}
+        style={[styles.emptyButton, SHADOWS.medium]}
         onPress={() => navigation.navigate('AddTask')}
       >
         <Text style={styles.emptyButtonText}>Crear tarea</Text>
@@ -138,6 +131,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />
       {/* Header Section */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
@@ -146,13 +140,13 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.fecha}>{formatDate(hoy)}</Text>
           </View>
           <TouchableOpacity style={styles.profileButton}>
-            <Ionicons name="person-circle-outline" size={40} color="#4CAF50" />
+            <Ionicons name="person-circle-outline" size={40} color={COLORS.secondary} />
           </TouchableOpacity>
         </View>
 
         {/* Stats Card */}
         {tareasHoy.length > 0 && (
-          <View style={styles.statsCard}>
+          <View style={[styles.statsCard, SHADOWS.medium]}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{tareasHoy.length}</Text>
               <Text style={styles.statLabel}>Tareas</Text>
@@ -167,7 +161,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.statNumber}>
                 {tareasHoy.filter(t => getProgressPercent(t.tiempo_acumulado, t.tiempo_registrado) >= 100).length}
               </Text>
-              <Text style={styles.statLabel}>Completadas</Text>
+              <Text style={styles.statLabel}>Hechas</Text>
             </View>
           </View>
         )}
@@ -185,20 +179,20 @@ export default function HomeScreen({ navigation }) {
         renderItem={renderTask}
         ListEmptyComponent={<EmptyState />}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tareasHoy.length === 0 && styles.emptyList}
+        contentContainerStyle={[styles.listContent, tareasHoy.length === 0 && styles.emptyList]}
       />
 
       {/* FAB */}
       <TouchableOpacity 
-        style={styles.fab} 
+        style={[styles.fab, SHADOWS.medium]} 
         onPress={() => navigation.navigate('AddTask')}
         activeOpacity={0.9}
       >
         <LinearGradient
-          colors={['#4CAF50', '#2E7D32']}
+          colors={[COLORS.secondary, '#368277']}
           style={styles.fabGradient}
         >
-          <Ionicons name="add" size={28} color="white" />
+          <Ionicons name="add" size={28} color={COLORS.white} />
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -208,15 +202,15 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#0D0D0D',
+    backgroundColor: COLORS.primary,
   },
   header: { 
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
-    backgroundColor: '#121212',
-    borderBottomLeftRadius: 25,
-    borderBottomRightRadius: 25,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: 60,
+    paddingBottom: SPACING.xl,
+    backgroundColor: COLORS.white,
+    borderBottomLeftRadius: RADIUS.lg,
+    borderBottomRightRadius: RADIUS.lg,
   },
   headerTop: {
     flexDirection: 'row',
@@ -224,15 +218,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saludo: { 
-    color: '#fff', 
-    fontSize: 26, 
+    color: COLORS.textMain, 
+    fontSize: 24, 
     fontWeight: 'bold',
-    letterSpacing: 0.5,
+    letterSpacing: -0.5,
   },
   fecha: { 
-    color: '#888', 
-    fontSize: 15,
-    marginTop: 4,
+    color: COLORS.textMuted, 
+    fontSize: 14,
+    marginTop: 2,
     textTransform: 'capitalize',
   },
   profileButton: {
@@ -240,66 +234,65 @@ const styles = StyleSheet.create({
   },
   statsCard: {
     flexDirection: 'row',
-    backgroundColor: '#1a1a1a',
-    borderRadius: 16,
-    padding: 18,
-    marginTop: 20,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.md,
+    padding: SPACING.md,
+    marginTop: SPACING.lg,
     justifyContent: 'space-around',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   statItem: {
     alignItems: 'center',
     flex: 1,
   },
   statNumber: {
-    color: '#4CAF50',
-    fontSize: 22,
+    color: COLORS.secondary,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   statLabel: {
-    color: '#888',
-    fontSize: 12,
-    marginTop: 4,
+    color: COLORS.textMuted,
+    fontSize: 11,
+    marginTop: 2,
+    fontWeight: '600',
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#333',
+    backgroundColor: COLORS.border,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 25,
-    paddingBottom: 15,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xl,
+    paddingBottom: SPACING.md,
   },
   sectionTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '600',
+    color: COLORS.textMain,
+    fontSize: 18,
+    fontWeight: '700',
   },
   sectionCount: {
-    color: '#666',
-    fontSize: 14,
+    color: COLORS.textMuted,
+    fontSize: 13,
+  },
+  listContent: {
+    paddingBottom: 100,
   },
   card: { 
-    backgroundColor: '#1a1a1a', 
-    marginHorizontal: 20,
-    marginBottom: 12,
-    borderRadius: 16,
-    overflow: 'hidden',
+    backgroundColor: COLORS.white, 
+    marginHorizontal: SPACING.lg,
+    marginBottom: SPACING.md,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-  },
-  cardLeft: {
-    marginRight: 12,
-  },
-  statusIndicator: {
-    width: 4,
-    height: 50,
-    borderRadius: 2,
+    padding: SPACING.md,
   },
   cardMain: {
     flex: 1,
@@ -308,38 +301,41 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
   taskTitle: { 
-    color: '#fff', 
+    color: COLORS.textMain, 
     fontSize: 16, 
     fontWeight: '600',
     flex: 1,
-    marginRight: 10,
+    marginRight: SPACING.sm,
   },
   statusBadge: {
-    backgroundColor: 'rgba(76, 175, 80, 0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    backgroundColor: COLORS.secondaryLight,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: RADIUS.sm,
   },
   completedBadge: {
-    backgroundColor: 'rgba(0, 200, 83, 0.2)',
+    backgroundColor: 'rgba(68, 161, 148, 0.2)',
   },
   statusText: {
-    color: '#4CAF50',
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'capitalize',
+    color: COLORS.secondary,
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  completedStatusText: {
+    color: COLORS.secondary,
   },
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: SPACING.sm,
   },
   timeText: {
-    color: '#888',
-    fontSize: 13,
+    color: COLORS.textMuted,
+    fontSize: 12,
     marginLeft: 5,
   },
   progressContainer: {
@@ -349,28 +345,31 @@ const styles = StyleSheet.create({
   progressBarBackground: { 
     flex: 1,
     height: 6, 
-    backgroundColor: '#2a2a2a', 
-    borderRadius: 3,
+    backgroundColor: COLORS.primary, 
+    borderRadius: RADIUS.full,
     overflow: 'hidden',
+    borderWidth: 0.5,
+    borderColor: COLORS.border,
   },
   progressBarFill: { 
     height: 6, 
-    borderRadius: 3,
+    borderRadius: RADIUS.full,
   },
   progressPercent: {
-    color: '#666',
-    fontSize: 12,
-    marginLeft: 10,
-    width: 35,
+    color: COLORS.textMuted,
+    fontSize: 11,
+    marginLeft: SPACING.sm,
+    width: 30,
     textAlign: 'right',
+    fontWeight: '600',
   },
   playButton: {
-    marginLeft: 12,
+    marginLeft: SPACING.md,
   },
   playGradient: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -381,57 +380,53 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingTop: 60,
+    paddingHorizontal: SPACING.xl,
+    paddingTop: 40,
   },
   emptyIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.secondaryLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 25,
+    marginBottom: SPACING.lg,
   },
   emptyTitle: {
-    color: '#fff',
-    fontSize: 22,
+    color: COLORS.textMain,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: SPACING.sm,
   },
   emptySubtitle: {
-    color: '#666',
-    fontSize: 15,
+    color: COLORS.textMuted,
+    fontSize: 14,
     textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 30,
+    lineHeight: 20,
+    marginBottom: SPACING.xl,
   },
   emptyButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 30,
-    paddingVertical: 14,
-    borderRadius: 25,
+    backgroundColor: COLORS.secondary,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
   },
   emptyButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: COLORS.primary,
+    fontSize: 15,
+    fontWeight: '700',
   },
   fab: { 
     position: 'absolute', 
-    right: 20, 
-    bottom: 25,
+    right: SPACING.lg, 
+    bottom: SPACING.lg,
+    borderRadius: RADIUS.full,
   },
   fabGradient: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
   },
 });
