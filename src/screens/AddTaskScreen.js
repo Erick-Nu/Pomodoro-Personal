@@ -12,6 +12,7 @@ import {
   Animated,
   StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { createTask } from '../database/db_queries_task';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
@@ -70,12 +71,12 @@ export default function AddTaskScreen({ navigation, route }) {
 
   const handleSave = () => {
     if (!nombre.trim()) {
-      Alert.alert("📝 Nombre requerido", "Dale un nombre a tu tarea.");
+      Alert.alert("Nombre requerido", "Ingresa un nombre para tu tarea.");
       return;
     }
     
     if (!horas || parseInt(horas) <= 0) {
-      Alert.alert("⏱️ Tiempo requerido", "Indica las horas estimadas.");
+      Alert.alert("Tiempo requerido", "Indica las horas estimadas para completar la tarea.");
       return;
     }
 
@@ -83,12 +84,12 @@ export default function AddTaskScreen({ navigation, route }) {
     
     try {
       createTask(nombre, descripcion, initialDate, tiempoEnMinutos);
-      Alert.alert("✅ Tarea creada", `"${nombre}" ha sido programada.`, [
-        { text: "OK", onPress: () => navigation.goBack() }
+      Alert.alert("Tarea creada", `"${nombre}" ha sido programada exitosamente.`, [
+        { text: "Aceptar", onPress: () => navigation.goBack() }
       ]);
     } catch (error) {
       console.error(error);
-      Alert.alert("❌ Error", "No se pudo guardar la tarea.");
+      Alert.alert("Error", "No se pudo guardar la tarea. Intenta de nuevo.");
     }
   };
 
@@ -191,40 +192,82 @@ export default function AddTaskScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.primary },
-  scrollContent: { padding: SPACING.lg, paddingTop: 20 },
+  scrollContent: { padding: SPACING.lg, paddingTop: SPACING.md },
   dateCard: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
-    padding: SPACING.md, borderRadius: RADIUS.md, marginBottom: SPACING.xl,
-    borderWidth: 1, borderColor: COLORS.border
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    padding: SPACING.md, 
+    borderRadius: RADIUS.md, 
+    marginBottom: SPACING.xl,
+    borderWidth: 1, 
+    borderColor: COLORS.border
   },
   dateIconWrapper: { 
-    width: 40, height: 40, borderRadius: RADIUS.sm, backgroundColor: COLORS.primary, 
-    justifyContent: 'center', alignItems: 'center', marginRight: 12 
+    width: 44, 
+    height: 44, 
+    borderRadius: RADIUS.md, 
+    backgroundColor: COLORS.primary, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: SPACING.sm 
   },
-  dateLabel: { color: COLORS.textMuted, fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
-  dateValue: { color: COLORS.textMain, fontSize: 16, fontWeight: '700', textTransform: 'capitalize' },
+  dateLabel: { 
+    color: COLORS.textMuted, 
+    fontSize: 11, 
+    fontWeight: '600', 
+    textTransform: 'uppercase',
+    letterSpacing: 0.5 
+  },
+  dateValue: { 
+    color: COLORS.textMain, 
+    fontSize: 16, 
+    fontWeight: '700', 
+    textTransform: 'capitalize',
+    marginTop: 2 
+  },
 
   form: { flex: 1 },
   inputGroup: { marginBottom: SPACING.lg },
-  label: { color: COLORS.textMain, fontSize: 14, fontWeight: '600', marginBottom: 8, marginLeft: 4 },
+  label: { 
+    color: COLORS.textMain, 
+    fontSize: 14, 
+    fontWeight: '600', 
+    marginBottom: 8, 
+    marginLeft: 4 
+  },
   labelActive: { color: COLORS.secondary },
   inputWrapper: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
-    borderRadius: RADIUS.md, paddingHorizontal: 16, borderWidth: 1.5, borderColor: COLORS.border 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    borderRadius: RADIUS.md, 
+    paddingHorizontal: SPACING.md, 
+    borderWidth: 1.5, 
+    borderColor: COLORS.border 
   },
   inputWrapperActive: { borderColor: COLORS.secondary },
-  input: { flex: 1, paddingVertical: 14, marginLeft: 12, color: COLORS.textMain, fontSize: 16 },
+  input: { 
+    flex: 1, 
+    paddingVertical: 14, 
+    marginLeft: SPACING.sm, 
+    color: COLORS.textMain, 
+    fontSize: 16 
+  },
   textAreaWrapper: { alignItems: 'flex-start', paddingTop: 14 },
   textArea: { textAlignVertical: 'top', height: 100 },
   
   timeRow: { flexDirection: 'row', alignItems: 'center' },
   timeInputWrapper: { width: 100 },
-  timeUnit: { marginLeft: 12, color: COLORS.textMuted, fontSize: 16, fontWeight: '600' },
+  timeUnit: { marginLeft: SPACING.sm, color: COLORS.textMuted, fontSize: 16, fontWeight: '600' },
 
   saveBtn: { 
-    backgroundColor: COLORS.secondary, paddingVertical: 18, borderRadius: RADIUS.md, 
-    alignItems: 'center', marginTop: SPACING.lg 
+    backgroundColor: COLORS.secondary, 
+    paddingVertical: 16, 
+    borderRadius: RADIUS.md, 
+    alignItems: 'center', 
+    marginTop: SPACING.xl 
   },
-  saveBtnDisabled: { backgroundColor: COLORS.textMuted, opacity: 0.5 },
+  saveBtnDisabled: { backgroundColor: COLORS.border, opacity: 0.6 },
   saveBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '700' }
 });
