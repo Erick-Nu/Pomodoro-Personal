@@ -18,22 +18,24 @@ export interface ColorTheme {
 }
 
 export const COLORS: ColorTheme = {
-  // Brand Colors
-  primary: '#FFFFFF',      // Blanco (Fondo principal)
-  secondary: '#1E40AF',    // Azul Royal (Acciones, Progreso, Títulos)
+  primary: '#FFFFFF',      
+  secondary: '#1E40AF',    
   accent: '#1E40AF',       
-  
-  // Neutrals
-  textMain: '#1E293B',     /* Azul Pizarra Oscuro para textos nítidos */
-  textMuted: '#64748B',    /* Slate Grey para textos secundarios */
-  border: '#E2E8F0',       /* Gris azulado muy claro para bordes */
+  textMain: '#1E293B',     
+  textMuted: '#64748B',    
+  border: '#E2E8F0',       
   white: '#FFFFFF',
   black: '#000000',
-  
-  // Transparency/Overlays (Efectos sutiles sobre fondo blanco)
   secondaryLight: 'rgba(30, 64, 175, 0.1)',
   accentLight: 'rgba(30, 64, 175, 0.05)',
   shadow: 'rgba(30, 64, 175, 0.1)',
+};
+
+export const TAG_COLORS = {
+  nota: { bg: '#F1F5F9', text: '#475569', border: '#CBD5E1' },
+  idea: { bg: '#DBEAFE', text: '#1E40AF', border: '#BFDBFE' },
+  urgente: { bg: '#FEE2E2', text: '#B91C1C', border: '#FECACA' },
+  logro: { bg: '#DCFCE7', text: '#15803D', border: '#BBF7D0' },
 };
 
 export const SPACING = {
@@ -69,11 +71,10 @@ export const SHADOWS = {
   },
 };
 
-const Theme = {
+export default {
   COLORS,
+  TAG_COLORS,
   SPACING,
   RADIUS,
   SHADOWS,
 };
-
-export default Theme;
