@@ -79,7 +79,7 @@ export default function DayDetailScreen({ route, navigation }) {
 
   const handleGuardarNota = () => {
     if (!nuevoTitulo.trim() || !nuevoContenido.trim()) {
-      Alert.alert("⚠️ Error", "Completa todos los campos");
+      Alert.alert("Campos incompletos", "Completa todos los campos para guardar la nota.");
       return;
     }
     Keyboard.dismiss();
@@ -208,55 +208,115 @@ export default function DayDetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.primary },
   summaryCard: { 
-    backgroundColor: COLORS.white, margin: SPACING.lg, borderRadius: RADIUS.lg, 
-    padding: 20, borderWidth: 1, borderColor: COLORS.border 
+    backgroundColor: COLORS.card, 
+    margin: SPACING.lg, 
+    borderRadius: RADIUS.lg, 
+    padding: SPACING.lg, 
+    borderWidth: 1, 
+    borderColor: COLORS.border 
   },
-  summaryTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  summaryTop: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.md },
   calendarIconBg: { 
-    width: 44, height: 44, borderRadius: RADIUS.sm, backgroundColor: COLORS.primary, 
-    justifyContent: 'center', alignItems: 'center', marginRight: 12 
+    width: 44, 
+    height: 44, 
+    borderRadius: RADIUS.md, 
+    backgroundColor: COLORS.primary, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: SPACING.sm 
   },
-  summaryLabel: { color: COLORS.textMuted, fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
-  summaryDate: { color: COLORS.textMain, fontSize: 18, fontWeight: '700', textTransform: 'capitalize' },
-  divider: { height: 1, backgroundColor: COLORS.border, marginBottom: 15 },
+  summaryLabel: { 
+    color: COLORS.textMuted, 
+    fontSize: 11, 
+    fontWeight: '600', 
+    textTransform: 'uppercase',
+    letterSpacing: 0.5 
+  },
+  summaryDate: { 
+    color: COLORS.textMain, 
+    fontSize: 18, 
+    fontWeight: '700', 
+    textTransform: 'capitalize',
+    marginTop: 2 
+  },
+  divider: { height: 1, backgroundColor: COLORS.border, marginBottom: SPACING.md },
   statsRow: { flexDirection: 'row', justifyContent: 'space-around' },
   stat: { alignItems: 'center' },
   statVal: { color: COLORS.secondary, fontSize: 20, fontWeight: 'bold' },
-  statLab: { color: COLORS.textMuted, fontSize: 12 },
+  statLab: { color: COLORS.textMuted, fontSize: 12, marginTop: 2 },
 
   listContent: { paddingHorizontal: SPACING.lg, paddingBottom: 40 },
   tareaCard: { 
-    backgroundColor: COLORS.white, borderRadius: RADIUS.md, padding: 16, 
-    marginBottom: 15, borderWidth: 1, borderColor: COLORS.border 
+    backgroundColor: COLORS.card, 
+    borderRadius: RADIUS.md, 
+    padding: SPACING.md, 
+    marginBottom: SPACING.md, 
+    borderWidth: 1, 
+    borderColor: COLORS.border 
   },
-  tareaHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  tareaHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: SPACING.sm 
+  },
   tareaInfo: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
   tareaNombre: { color: COLORS.textMain, fontSize: 16, fontWeight: '600' },
   addNotaMiniBtn: { 
-    width: 28, height: 28, borderRadius: 14, backgroundColor: COLORS.primary, 
-    justifyContent: 'center', alignItems: 'center' 
+    width: 28, 
+    height: 28, 
+    borderRadius: 14, 
+    backgroundColor: COLORS.primary, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
 
-  notasWrapper: { borderTopWidth: 1, borderTopColor: COLORS.primary, paddingTop: 12 },
+  notasWrapper: { borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: SPACING.sm },
   notaItem: { flexDirection: 'row', marginBottom: 10, gap: 10 },
-  notaDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.secondary, marginTop: 6 },
+  notaDot: { 
+    width: 6, 
+    height: 6, 
+    borderRadius: 3, 
+    backgroundColor: COLORS.secondary, 
+    marginTop: 6 
+  },
   notaItemTitle: { color: COLORS.textMain, fontSize: 14, fontWeight: '600' },
   notaItemBody: { color: COLORS.textMuted, fontSize: 13, lineHeight: 18 },
   emptyNotas: { color: COLORS.textMuted, fontSize: 12, fontStyle: 'italic' },
 
-  emptyContainer: { alignItems: 'center', marginTop: 40 },
-  emptyText: { color: COLORS.textMuted },
+  emptyContainer: { alignItems: 'center', marginTop: 60 },
+  emptyText: { color: COLORS.textMuted, fontSize: 15 },
 
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 20 },
+  modalOverlay: { flex: 1, backgroundColor: COLORS.overlay, justifyContent: 'center', padding: SPACING.lg },
   modalBackdrop: { ...StyleSheet.absoluteFillObject },
   modalContent: { 
-    backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 24, 
-    borderWidth: 1, borderColor: COLORS.border 
+    backgroundColor: COLORS.card, 
+    borderRadius: RADIUS.lg, 
+    padding: SPACING.lg 
   },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: SPACING.lg 
+  },
   modalTitle: { color: COLORS.textMain, fontSize: 18, fontWeight: '700' },
-  input: { backgroundColor: COLORS.primary, borderRadius: RADIUS.md, padding: 15, marginBottom: 15 },
+  input: { 
+    backgroundColor: COLORS.primary, 
+    borderRadius: RADIUS.md, 
+    padding: SPACING.md, 
+    marginBottom: SPACING.md,
+    color: COLORS.textMain,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border
+  },
   textArea: { height: 100, textAlignVertical: 'top' },
-  saveBtn: { backgroundColor: COLORS.secondary, padding: 16, borderRadius: RADIUS.md, alignItems: 'center' },
-  saveBtnText: { color: COLORS.white, fontWeight: '700' }
+  saveBtn: { 
+    backgroundColor: COLORS.secondary, 
+    padding: 16, 
+    borderRadius: RADIUS.md, 
+    alignItems: 'center' 
+  },
+  saveBtnText: { color: COLORS.white, fontWeight: '700', fontSize: 16 }
 });
