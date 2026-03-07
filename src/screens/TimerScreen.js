@@ -9,7 +9,8 @@ import {
   Modal,
   Animated,
   StatusBar,
-  Dimensions
+  Dimensions,
+  ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -338,7 +339,11 @@ export default function TimerScreen({ route, navigation }) {
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       
-      <View style={styles.content}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerIcon}>
@@ -481,7 +486,7 @@ export default function TimerScreen({ route, navigation }) {
             </TouchableOpacity>
           </Animated.View>
         </View>
-      </View>
+      </ScrollView>
 
       {/* Modal de selección de canciones */}
       <Modal visible={showMusicModal} animationType="slide" transparent>
@@ -562,9 +567,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.primary,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xxl,
   },
 
   // Header
@@ -765,8 +773,7 @@ const styles = StyleSheet.create({
 
   // Action Section
   actionSection: {
-    marginTop: 'auto',
-    paddingBottom: SPACING.xl,
+    marginTop: SPACING.md,
   },
   mainBtn: { 
     borderRadius: RADIUS.lg,
