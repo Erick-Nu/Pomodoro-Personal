@@ -1,12 +1,72 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { getTasksByDate } from '../database/db_queries_task';
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 
-const { width } = Dimensions.get('window');
+// Iconos SVG
+const SunIcon = ({ size = 24, color = COLORS.secondary }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="4" stroke={color} strokeWidth={2}/>
+    <Path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke={color} strokeWidth={2} strokeLinecap="round"/>
+  </Svg>
+);
+
+const MoonIcon = ({ size = 24, color = COLORS.secondary }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+  </Svg>
+);
+
+const CloudSunIcon = ({ size = 24, color = COLORS.secondary }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M17.66 6.34l1.41-1.41" stroke={color} strokeWidth={2} strokeLinecap="round"/>
+    <Circle cx="12" cy="10" r="4" stroke={color} strokeWidth={2}/>
+    <Path d="M8 18a4 4 0 014-4h.87a5.3 5.3 0 013.79 1.56A2 2 0 0118 18H8z" stroke={color} strokeWidth={2} strokeLinecap="round"/>
+  </Svg>
+);
+
+const CheckCircleIcon = ({ size = 24, color = COLORS.secondary }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth={2}/>
+    <Path d="M9 12l2 2 4-4" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+  </Svg>
+);
+
+const CircleIcon = ({ size = 24, color = COLORS.textMuted }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth={2}/>
+  </Svg>
+);
+
+const ClockIcon = ({ size = 14, color = COLORS.textMuted }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="9" stroke={color} strokeWidth={2}/>
+    <Path d="M12 6v6l4 2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
+  </Svg>
+);
+
+const PlayIcon = ({ size = 20, color = COLORS.white }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M5 3l14 9-14 9V3z" fill={color}/>
+  </Svg>
+);
+
+const PlusIcon = ({ size = 28, color = COLORS.white }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M12 5v14M5 12h14" stroke={color} strokeWidth={2.5} strokeLinecap="round"/>
+  </Svg>
+);
+
+const CalendarEmptyIcon = ({ size = 56, color = COLORS.textMuted }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={color} strokeWidth={1.5} strokeLinecap="round"/>
+    <Path d="M9 16l6-6M9 10l6 6" stroke={color} strokeWidth={1.5} strokeLinecap="round"/>
+  </Svg>
+);
 
 export default function HomeScreen({ navigation }) {
   const [tareasHoy, setTareasHoy] = useState([]);
@@ -20,10 +80,10 @@ export default function HomeScreen({ navigation }) {
     return 'Buenas noches';
   };
 
-  const getEmoji = () => {
-    if (hora < 12) return '☀️';
-    if (hora < 19) return '🌤️';
-    return '🌙';
+  const getGreetingIcon = () => {
+    if (hora < 12) return <SunIcon />;
+    if (hora < 19) return <CloudSunIcon />;
+    return <MoonIcon />;
   };
 
   const formatDate = (dateStr) => {
@@ -51,28 +111,37 @@ export default function HomeScreen({ navigation }) {
     const progress = getProgressPercent(item.tiempo_acumulado, item.tiempo_registrado);
     const horasAcumuladas = (item.tiempo_acumulado / 60).toFixed(1);
     const horasTotal = (item.tiempo_registrado / 60).toFixed(1);
+    const isCompleted = progress >= 100;
 
     return (
       <TouchableOpacity 
         style={[styles.card, SHADOWS.light]} 
         onPress={() => navigation.navigate('TaskDetail', { tarea: item })}
-        activeOpacity={0.8}
+        activeOpacity={0.7}
       >
         <View style={styles.cardContent}>
+          <View style={styles.checkContainer}>
+            {isCompleted ? (
+              <CheckCircleIcon size={26} color={COLORS.secondary} />
+            ) : (
+              <CircleIcon size={26} color={COLORS.border} />
+            )}
+          </View>
+
           <View style={styles.cardMain}>
             <View style={styles.cardHeader}>
               <Text style={styles.taskTitle} numberOfLines={1}>{item.nombre}</Text>
-              <View style={[styles.statusBadge, progress >= 100 && styles.completedBadge]}>
-                <Text style={[styles.statusText, progress >= 100 && styles.completedStatusText]}>
-                  {progress >= 100 ? 'Completada' : item.estado}
+              <View style={[styles.statusBadge, isCompleted && styles.completedBadge]}>
+                <Text style={[styles.statusText, isCompleted && styles.statusTextCompleted]}>
+                  {isCompleted ? 'Completada' : 'En progreso'}
                 </Text>
               </View>
             </View>
 
             <View style={styles.timeRow}>
-              <Ionicons name="time-outline" size={14} color={COLORS.textMuted} />
+              <ClockIcon />
               <Text style={styles.timeText}>
-                {horasAcumuladas}h de {horasTotal}h
+                {horasAcumuladas}h / {horasTotal}h
               </Text>
             </View>
             
@@ -83,7 +152,7 @@ export default function HomeScreen({ navigation }) {
                     styles.progressBarFill, 
                     { 
                       width: `${progress}%`,
-                      backgroundColor: progress >= 100 ? COLORS.secondary : COLORS.accent 
+                      backgroundColor: isCompleted ? COLORS.secondary : COLORS.accent 
                     }
                   ]} 
                 />
@@ -97,10 +166,10 @@ export default function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate('Timer', { tarea: item })}
           >
             <LinearGradient
-              colors={[COLORS.secondary, '#368277']}
-              style={styles.playGradient}
+              colors={COLORS.gradientPrimary}
+              style={styles.playIconBg}
             >
-              <Ionicons name="play" size={18} color={COLORS.white} />
+              <PlayIcon size={18} />
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -111,42 +180,51 @@ export default function HomeScreen({ navigation }) {
   const EmptyState = () => (
     <View style={styles.emptyContainer}>
       <View style={styles.emptyIconContainer}>
-        <Ionicons name="leaf-outline" size={60} color={COLORS.secondary} />
+        <CalendarEmptyIcon />
       </View>
-      <Text style={styles.emptyTitle}>Tu día está libre</Text>
+      <Text style={styles.emptyTitle}>Sin tareas para hoy</Text>
       <Text style={styles.emptySubtitle}>
-        Crea tu primera tarea y comienza a ser productivo
+        Comienza agregando tu primera tarea y enfócate en lo que importa.
       </Text>
       <TouchableOpacity 
-        style={[styles.emptyButton, SHADOWS.medium]}
+        style={styles.emptyButton}
         onPress={() => navigation.navigate('AddTask')}
       >
-        <Text style={styles.emptyButtonText}>Crear tarea</Text>
+        <LinearGradient
+          colors={COLORS.gradientPrimary}
+          style={styles.emptyButtonGradient}
+        >
+          <Text style={styles.emptyButtonText}>Crear primera tarea</Text>
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
 
   const totalMinutos = tareasHoy.reduce((acc, t) => acc + (t.tiempo_acumulado || 0), 0);
   const totalHoras = (totalMinutos / 60).toFixed(1);
+  const completadas = tareasHoy.filter(t => getProgressPercent(t.tiempo_acumulado, t.tiempo_registrado) >= 100).length;
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      
       {/* Header Section */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.saludo}>{getSaludo()} {getEmoji()}</Text>
-            <Text style={styles.fecha}>{formatDate(hoy)}</Text>
+          <View style={styles.greetingRow}>
+            <View style={styles.greetingIconWrapper}>
+              {getGreetingIcon()}
+            </View>
+            <View>
+              <Text style={styles.saludo}>{getSaludo()}</Text>
+              <Text style={styles.fecha}>{formatDate(hoy)}</Text>
+            </View>
           </View>
-          <TouchableOpacity style={styles.profileButton}>
-            <Ionicons name="person-circle-outline" size={40} color={COLORS.secondary} />
-          </TouchableOpacity>
         </View>
 
         {/* Stats Card */}
         {tareasHoy.length > 0 && (
-          <View style={[styles.statsCard, SHADOWS.medium]}>
+          <View style={styles.statsCard}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{tareasHoy.length}</Text>
               <Text style={styles.statLabel}>Tareas</Text>
@@ -154,24 +232,24 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{totalHoras}h</Text>
-              <Text style={styles.statLabel}>Trabajadas</Text>
+              <Text style={styles.statLabel}>Enfoque</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {tareasHoy.filter(t => getProgressPercent(t.tiempo_acumulado, t.tiempo_registrado) >= 100).length}
-              </Text>
-              <Text style={styles.statLabel}>Hechas</Text>
+              <Text style={styles.statNumber}>{completadas}</Text>
+              <Text style={styles.statLabel}>Listas</Text>
             </View>
           </View>
         )}
       </View>
 
       {/* Tasks Section */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Mis tareas</Text>
-        <Text style={styles.sectionCount}>{tareasHoy.length} activas</Text>
-      </View>
+      {tareasHoy.length > 0 && (
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Tareas del día</Text>
+          <Text style={styles.sectionCount}>{tareasHoy.length} activas</Text>
+        </View>
+      )}
 
       <FlatList
         data={tareasHoy}
@@ -184,18 +262,18 @@ export default function HomeScreen({ navigation }) {
 
       {/* FAB */}
       <TouchableOpacity 
-        style={[styles.fab, SHADOWS.medium]} 
+        style={styles.fab} 
         onPress={() => navigation.navigate('AddTask')}
         activeOpacity={0.9}
       >
         <LinearGradient
-          colors={[COLORS.secondary, '#368277']}
+          colors={COLORS.gradientPrimary}
           style={styles.fabGradient}
         >
-          <Ionicons name="add" size={28} color={COLORS.white} />
+          <PlusIcon />
         </LinearGradient>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -206,35 +284,45 @@ const styles = StyleSheet.create({
   },
   header: { 
     paddingHorizontal: SPACING.lg,
-    paddingTop: 60,
-    paddingBottom: SPACING.xl,
-    backgroundColor: COLORS.white,
-    borderBottomLeftRadius: RADIUS.lg,
-    borderBottomRightRadius: RADIUS.lg,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.lg,
+    backgroundColor: COLORS.primary,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  greetingIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.sm,
+  },
   saludo: { 
-    color: COLORS.textMain, 
-    fontSize: 24, 
-    fontWeight: 'bold',
-    letterSpacing: -0.5,
+    color: COLORS.textMuted, 
+    fontSize: 14, 
+    fontWeight: '500',
   },
   fecha: { 
-    color: COLORS.textMuted, 
-    fontSize: 14,
+    color: COLORS.textMain, 
+    fontSize: 18,
+    fontWeight: '700',
     marginTop: 2,
     textTransform: 'capitalize',
   },
-  profileButton: {
-    padding: 5,
-  },
   statsCard: {
     flexDirection: 'row',
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.card,
     borderRadius: RADIUS.md,
     padding: SPACING.md,
     marginTop: SPACING.lg,
@@ -248,7 +336,7 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     color: COLORS.secondary,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   statLabel: {
@@ -256,6 +344,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 2,
     fontWeight: '600',
+    textTransform: 'uppercase',
   },
   statDivider: {
     width: 1,
@@ -266,7 +355,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.xl,
+    paddingTop: SPACING.lg,
     paddingBottom: SPACING.md,
   },
   sectionTitle: {
@@ -279,12 +368,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   listContent: {
+    paddingHorizontal: SPACING.lg,
     paddingBottom: 100,
   },
   card: { 
-    backgroundColor: COLORS.white, 
-    marginHorizontal: SPACING.lg,
-    marginBottom: SPACING.md,
+    backgroundColor: COLORS.card, 
+    marginBottom: SPACING.sm,
     borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -294,6 +383,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: SPACING.md,
   },
+  checkContainer: {
+    marginRight: SPACING.sm,
+  },
   cardMain: {
     flex: 1,
   },
@@ -301,7 +393,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: 6,
   },
   taskTitle: { 
     color: COLORS.textMain, 
@@ -311,32 +403,33 @@ const styles = StyleSheet.create({
     marginRight: SPACING.sm,
   },
   statusBadge: {
-    backgroundColor: COLORS.secondaryLight,
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: RADIUS.sm,
+    borderRadius: RADIUS.xs,
   },
   completedBadge: {
-    backgroundColor: 'rgba(68, 161, 148, 0.2)',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
   },
   statusText: {
-    color: COLORS.secondary,
+    color: COLORS.textMuted,
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '600',
     textTransform: 'uppercase',
   },
-  completedStatusText: {
+  statusTextCompleted: {
     color: COLORS.secondary,
   },
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: 10,
+    gap: 4,
   },
   timeText: {
     color: COLORS.textMuted,
     fontSize: 12,
-    marginLeft: 5,
+    fontWeight: '500',
   },
   progressContainer: {
     flexDirection: 'row',
@@ -348,8 +441,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary, 
     borderRadius: RADIUS.full,
     overflow: 'hidden',
-    borderWidth: 0.5,
-    borderColor: COLORS.border,
   },
   progressBarFill: { 
     height: 6, 
@@ -359,17 +450,17 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     fontSize: 11,
     marginLeft: SPACING.sm,
-    width: 30,
+    width: 32,
     textAlign: 'right',
     fontWeight: '600',
   },
   playButton: {
-    marginLeft: SPACING.md,
+    marginLeft: SPACING.sm,
   },
-  playGradient: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  playIconBg: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -381,13 +472,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: SPACING.xl,
-    paddingTop: 40,
+    paddingTop: 80,
   },
   emptyIconContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: COLORS.secondaryLight,
+    backgroundColor: COLORS.card,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.lg,
@@ -402,30 +493,33 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     fontSize: 14,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
     marginBottom: SPACING.xl,
   },
   emptyButton: {
-    backgroundColor: COLORS.secondary,
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: 12,
     borderRadius: RADIUS.md,
+    overflow: 'hidden',
+  },
+  emptyButtonGradient: {
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: 14,
   },
   emptyButtonText: {
-    color: COLORS.primary,
+    color: COLORS.white,
     fontSize: 15,
     fontWeight: '700',
   },
   fab: { 
     position: 'absolute', 
     right: SPACING.lg, 
-    bottom: SPACING.lg,
+    bottom: 30,
     borderRadius: RADIUS.full,
+    ...SHADOWS.medium,
   },
   fabGradient: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     justifyContent: 'center',
     alignItems: 'center',
   },
