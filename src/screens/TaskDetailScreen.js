@@ -91,7 +91,7 @@ export default function TaskDetailScreen({ route, navigation }) {
 
   const handleGuardarNota = () => {
     if (!nuevoTitulo.trim() || !nuevoContenido.trim()) {
-      Alert.alert("⚠️ Campos incompletos", "Por favor completa el título y el contenido.");
+      Alert.alert("Campos incompletos", "Por favor completa el título y el contenido.");
       return;
     }
     Keyboard.dismiss();
@@ -103,7 +103,7 @@ export default function TaskDetailScreen({ route, navigation }) {
   };
 
   const handleDeleteNote = (notaId) => {
-    Alert.alert("🗑️ Eliminar nota", "¿Estás seguro de eliminar esta nota?", [
+    Alert.alert("Eliminar nota", "Esta acción no se puede deshacer.", [
       { text: "Cancelar", style: "cancel" },
       { text: "Eliminar", style: "destructive", onPress: () => {
         deleteNote(notaId);
@@ -113,7 +113,7 @@ export default function TaskDetailScreen({ route, navigation }) {
   };
 
   const handleDeleteTask = () => {
-    Alert.alert("🗑️ Eliminar", "¿Estás seguro de eliminar esta tarea?", [
+    Alert.alert("Eliminar tarea", "Esta acción eliminará la tarea y todas sus notas.", [
       { text: "Cancelar", style: "cancel" },
       { text: "Eliminar", style: "destructive", onPress: () => {
         deleteTask(tarea.id);
@@ -180,7 +180,7 @@ export default function TaskDetailScreen({ route, navigation }) {
             style={[styles.timerBtn, SHADOWS.light]} 
             onPress={() => navigation.navigate('Timer', { tarea })}
           >
-            <LinearGradient colors={[COLORS.secondary, '#368277']} style={styles.timerBtnGradient}>
+            <LinearGradient colors={COLORS.gradientPrimary} style={styles.timerBtnGradient}>
               <PlayIcon />
               <Text style={styles.timerBtnText}>Continuar Sesión</Text>
             </LinearGradient>
@@ -260,70 +260,118 @@ const styles = StyleSheet.create({
   scrollContent: { padding: SPACING.lg },
   
   headerCard: { 
-    backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: SPACING.lg, 
-    borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.xl 
+    backgroundColor: COLORS.card, 
+    borderRadius: RADIUS.lg, 
+    padding: SPACING.lg, 
+    borderWidth: 1, 
+    borderColor: COLORS.border, 
+    marginBottom: SPACING.xl 
   },
   headerTop: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.md },
   iconCircle: { 
-    width: 50, height: 50, borderRadius: RADIUS.md, backgroundColor: COLORS.primary, 
-    justifyContent: 'center', alignItems: 'center' 
+    width: 50, 
+    height: 50, 
+    borderRadius: RADIUS.md, 
+    backgroundColor: COLORS.primary, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
-  headerText: { flex: 1, marginLeft: 15 },
+  headerText: { flex: 1, marginLeft: SPACING.sm },
   title: { color: COLORS.textMain, fontSize: 20, fontWeight: '700' },
   dateRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 6 },
   dateText: { color: COLORS.textMuted, fontSize: 13, fontWeight: '500' },
   deleteBtn: { padding: 10 },
 
-  descBox: { backgroundColor: COLORS.primary, padding: 12, borderRadius: RADIUS.sm, marginBottom: 20 },
+  descBox: { 
+    backgroundColor: COLORS.primary, 
+    padding: SPACING.sm, 
+    borderRadius: RADIUS.sm, 
+    marginBottom: SPACING.lg 
+  },
   descText: { color: COLORS.textMuted, fontSize: 14, lineHeight: 20 },
 
-  progressBox: { marginBottom: 25 },
+  progressBox: { marginBottom: SPACING.lg },
   progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
   progressLabel: { color: COLORS.textMain, fontSize: 14, fontWeight: '600' },
   progressValue: { color: COLORS.secondary, fontSize: 14, fontWeight: '700' },
-  barBg: { height: 8, backgroundColor: COLORS.primary, borderRadius: 4, overflow: 'hidden' },
+  barBg: { height: 6, backgroundColor: COLORS.primary, borderRadius: RADIUS.full, overflow: 'hidden' },
   barFill: { height: '100%', backgroundColor: COLORS.secondary },
   timeLabel: { color: COLORS.textMuted, fontSize: 12, marginTop: 8, fontWeight: '500' },
 
   timerBtn: { borderRadius: RADIUS.md, overflow: 'hidden' },
   timerBtnGradient: { 
-    flexDirection: 'row', paddingVertical: 16, justifyContent: 'center', alignItems: 'center', gap: 10 
+    flexDirection: 'row', 
+    paddingVertical: 16, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    gap: 10 
   },
   timerBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
 
   sectionHeader: { 
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: SPACING.md 
   },
   sectionTitle: { color: COLORS.textMain, fontSize: 18, fontWeight: '700' },
   addNoteBtn: { 
-    width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.white, 
-    justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: COLORS.border 
+    width: 36, 
+    height: 36, 
+    borderRadius: 18, 
+    backgroundColor: COLORS.card, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    borderWidth: 1, 
+    borderColor: COLORS.border 
   },
 
   notaCard: { 
-    backgroundColor: COLORS.white, padding: 16, borderRadius: RADIUS.md, 
-    marginBottom: 12, borderWidth: 1, borderColor: COLORS.border 
+    backgroundColor: COLORS.card, 
+    padding: SPACING.md, 
+    borderRadius: RADIUS.md, 
+    marginBottom: SPACING.sm, 
+    borderWidth: 1, 
+    borderColor: COLORS.border 
   },
   notaHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   notaTitle: { color: COLORS.textMain, fontSize: 15, fontWeight: '600' },
   notaBody: { color: COLORS.textMuted, fontSize: 14, lineHeight: 20 },
-  notaHint: { color: COLORS.textMuted, fontSize: 11, marginTop: 8, fontStyle: 'italic', opacity: 0.6 },
+  notaHint: { color: COLORS.textMuted, fontSize: 11, marginTop: 8, fontStyle: 'italic', opacity: 0.5 },
 
-  emptyBox: { alignItems: 'center', marginTop: 40, opacity: 0.5 },
+  emptyBox: { alignItems: 'center', marginTop: 40 },
   emptyText: { color: COLORS.textMuted, fontSize: 14, marginTop: 10, textAlign: 'center' },
 
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalOverlay: { flex: 1, backgroundColor: COLORS.overlay, justifyContent: 'flex-end' },
   modalContent: { 
-    backgroundColor: COLORS.white, borderTopLeftRadius: RADIUS.lg, borderTopRightRadius: RADIUS.lg, 
-    padding: 24, borderTopWidth: 1, borderTopColor: COLORS.border 
+    backgroundColor: COLORS.card, 
+    borderTopLeftRadius: RADIUS.xl, 
+    borderTopRightRadius: RADIUS.xl, 
+    padding: SPACING.lg 
   },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: SPACING.lg 
+  },
   modalTitle: { color: COLORS.textMain, fontSize: 18, fontWeight: '700' },
   input: { 
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.md, padding: 15, 
-    color: COLORS.textMain, marginBottom: 15, fontSize: 16 
+    backgroundColor: COLORS.primary, 
+    borderRadius: RADIUS.md, 
+    padding: SPACING.md, 
+    color: COLORS.textMain, 
+    marginBottom: SPACING.md, 
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border
   },
   textArea: { height: 120, textAlignVertical: 'top' },
-  saveBtn: { backgroundColor: COLORS.secondary, padding: 18, borderRadius: RADIUS.md, alignItems: 'center' },
+  saveBtn: { 
+    backgroundColor: COLORS.secondary, 
+    padding: 16, 
+    borderRadius: RADIUS.md, 
+    alignItems: 'center' 
+  },
   saveBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '700' }
 });
