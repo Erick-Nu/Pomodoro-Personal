@@ -1,15 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldVibrate: true,
-  }),
-});
-
-export const registerForPushNotificationsAsync = async () => {
+export const registerForPushNotificationsAsync = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
       name: 'default',
@@ -28,7 +20,7 @@ export const registerForPushNotificationsAsync = async () => {
   return finalStatus === 'granted';
 };
 
-export const sendLocalNotification = async (title, body) => {
+export const sendLocalNotification = async (title: string, body: string): Promise<void> => {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: title,

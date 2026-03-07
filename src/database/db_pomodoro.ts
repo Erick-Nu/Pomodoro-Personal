@@ -3,13 +3,13 @@ import * as SQLite from 'expo-sqlite';
 // Abrimos la base de datos local
 const db = SQLite.openDatabaseSync('pomodoro_v4.db');
 
-export const initDatabase = () => {
+export const initDatabase = (): void => {
   try {
     db.execSync('PRAGMA foreign_keys = ON;');
     db.execSync('PRAGMA journal_mode = WAL;');
 
     db.execSync(`
-      -- 1. Tabla de Tareas (Basada en tu requerimiento exacto)
+      -- 1. Tabla de Tareas
       CREATE TABLE IF NOT EXISTS tareas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT NOT NULL,
@@ -17,22 +17,22 @@ export const initDatabase = () => {
         fecha TEXT NOT NULL,   
         tiempo_registrado INTEGER,      
         tiempo_acumulado INTEGER DEFAULT 0, 
-        estado TEXT DEFAULT 'en proceso',  
+        estado TEXT DEFAULT 'pendiente',  
         completada INTEGER DEFAULT 0       
       );
 
-      -- 2. Tabla de Notas (Relacionada con la tarea)
+      -- 2. Tabla de Notas
       CREATE TABLE IF NOT EXISTS notas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tarea_id INTEGER NOT NULL,
         titulo TEXT NOT NULL,
-        etiqueta TEXT DEFAULT 'importante',
+        etiqueta TEXT DEFAULT 'nota',
         contenido TEXT NOT NULL,
         fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (tarea_id) REFERENCES tareas (id) ON DELETE CASCADE
       );
 
-      -- 3. Historial de Sesiones (Opcional, para auditoría de tus pomodoros)
+      -- 3. Historial de Sesiones
       CREATE TABLE IF NOT EXISTS sesiones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tarea_id INTEGER NOT NULL,
@@ -41,7 +41,7 @@ export const initDatabase = () => {
         FOREIGN KEY (tarea_id) REFERENCES tareas (id) ON DELETE CASCADE
       );
     `);
-    console.log("Base de datos configurada: Tareas por tiempo acumulado, Notas relacionadas, Historial de sesiones.");
+    console.log("Base de datos configurada correctamente.");
   } catch (error) {
     console.error("Error al inicializar la base de datos:", error);
   }

@@ -7,7 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // --- DESIGN SYSTEM ---
-import { COLORS, RADIUS } from './src/styles/theme';
+import { COLORS } from './src/styles/theme';
 
 // --- IMPORTACIÓN DE PANTALLAS ---
 import HomeScreen from './src/screens/HomeScreen';
@@ -19,36 +19,37 @@ import TaskDetailScreen from './src/screens/TaskDetailScreen';
 
 // --- SERVICIOS LOCALES ---
 import { initDatabase } from './src/database/db_pomodoro';
+import { RootStackParamList } from './src/types';
 
-// Configuración global de notificaciones
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: true,
-    shouldVibrate: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Tema personalizado para el contenedor de navegación
 const MyTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: COLORS.primary,
+    background: COLORS.black,
     primary: COLORS.secondary,
   },
 };
 
 const commonStackOptions = {
-  headerStyle: { backgroundColor: COLORS.card },
-  headerTintColor: COLORS.textMain,
-  headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+  headerStyle: { backgroundColor: COLORS.black },
+  headerTintColor: COLORS.secondary,
+  headerTitleStyle: { fontWeight: '700' as const, fontSize: 17 },
   headerShadowVisible: false,
   headerBackTitleVisible: false,
-  animation: 'slide_from_right',
+  animation: 'slide_from_right' as const,
 };
 
 function HomeStack() {
@@ -57,16 +58,7 @@ function HomeStack() {
       <Stack.Screen name="Inicio" component={HomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ title: 'Tarea' }} />
       <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ title: 'Nueva Tarea' }} />
-      <Stack.Screen 
-        name="Timer" 
-        component={TimerScreen} 
-        options={{ 
-          title: 'Enfoque',
-          headerBackVisible: false,
-          gestureEnabled: false,
-          headerStyle: { backgroundColor: COLORS.primary }
-        }} 
-      />
+      <Stack.Screen name="Timer" component={TimerScreen} options={{ title: 'Enfoque', headerBackVisible: false, gestureEnabled: false }} />
     </Stack.Navigator>
   );
 }
@@ -78,16 +70,6 @@ function CalendarStack() {
       <Stack.Screen name="DetalleDia" component={DayDetailScreen} options={{ title: 'Historial' }} />
       <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ title: 'Nueva Tarea' }} />
       <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ title: 'Tarea' }} />
-      <Stack.Screen 
-        name="Timer" 
-        component={TimerScreen} 
-        options={{ 
-          title: 'Enfoque',
-          headerBackVisible: false,
-          gestureEnabled: false,
-          headerStyle: { backgroundColor: COLORS.primary }
-        }} 
-      />
     </Stack.Navigator>
   );
 }
@@ -99,25 +81,20 @@ function TabNavigator() {
     <Tab.Navigator 
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
-          let iconName = route.name === 'HomeStack' ? 'home' : 'calendar';
+          let iconName: any = route.name === 'HomeStack' ? 'home' : 'calendar';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: COLORS.secondary,
         tabBarInactiveTintColor: COLORS.textMuted,
         tabBarStyle: { 
-          backgroundColor: COLORS.card, 
+          backgroundColor: COLORS.black, 
           borderTopWidth: 1,
-          borderTopColor: COLORS.border,
+          borderTopColor: 'rgba(234, 228, 213, 0.1)',
           height: 60 + insets.bottom,
           paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
           paddingTop: 10,
-          elevation: 0,
         },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '700',
-          marginBottom: 5,
-        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
         headerShown: false,
       })}
     >

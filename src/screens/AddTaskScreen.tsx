@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -12,12 +12,17 @@ import {
   Animated,
   StatusBar
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { NavigationProp, RouteProp } from '@react-navigation/native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { createTask } from '../database/db_queries_task';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
+import { RootStackParamList } from '../types';
 
-// Iconos SVG personalizados con el nuevo tema
+interface AddTaskScreenProps {
+  navigation: NavigationProp<RootStackParamList>;
+  route: RouteProp<RootStackParamList, 'AddTask'>;
+}
+
 const TaskIcon = ({ size = 20, color = COLORS.textMuted }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
@@ -39,19 +44,19 @@ const ClockIcon = ({ size = 20, color = COLORS.textMuted }) => (
   </Svg>
 );
 
-const CalendarIcon = ({ size = 18, color = COLORS.secondary }) => (
+const CalendarIcon = ({ size = 18, color = COLORS.accent }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={color} strokeWidth={2} strokeLinecap="round"/>
   </Svg>
 );
 
-export default function AddTaskScreen({ navigation, route }) {
+export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps) {
   const { initialDate } = route.params || { initialDate: new Date().toISOString().split('T')[0] };
 
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [horas, setHoras] = useState('');
-  const [focusedInput, setFocusedInput] = useState(null);
+  const [nombre, setNombre] = useState<string>('');
+  const [descripcion, setDescripcion] = useState<string>('');
+  const [horas, setHoras] = useState<string>('');
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
   
   const formOpacity = useRef(new Animated.Value(0)).current;
 
@@ -63,33 +68,33 @@ export default function AddTaskScreen({ navigation, route }) {
     }).start();
   }, []);
 
-  const formatDate = (dateString) => {
-    const options = { weekday: 'long', day: 'numeric', month: 'long' };
+  const formatDate = (dateString: string): string => {
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
     const date = new Date(dateString + 'T00:00:00');
     return date.toLocaleDateString('es-ES', options);
   };
 
   const handleSave = () => {
     if (!nombre.trim()) {
-      Alert.alert("Nombre requerido", "Ingresa un nombre para tu tarea.");
+      Alert.alert("📝 Nombre requerido", "Dale un nombre a tu tarea.");
       return;
     }
     
     if (!horas || parseInt(horas) <= 0) {
-      Alert.alert("Tiempo requerido", "Indica las horas estimadas para completar la tarea.");
+      Alert.alert("⏱️ Tiempo requerido", "Indica las horas estimadas.");
       return;
     }
 
     const tiempoEnMinutos = parseInt(horas) * 60; 
     
     try {
-      createTask(nombre, descripcion, initialDate, tiempoEnMinutos);
-      Alert.alert("Tarea creada", `"${nombre}" ha sido programada exitosamente.`, [
-        { text: "Aceptar", onPress: () => navigation.goBack() }
+      createTask(nombre, descripcion, initialDate!, tiempoEnMinutos);
+      Alert.alert("✅ Tarea creada", `"${nombre}" ha sido programada.`, [
+        { text: "OK", onPress: () => navigation.goBack() }
       ]);
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "No se pudo guardar la tarea. Intenta de nuevo.");
+      Alert.alert("❌ Error", "No se pudo guardar la tarea.");
     }
   };
 
@@ -98,26 +103,23 @@ export default function AddTaskScreen({ navigation, route }) {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="light-content" />
         <ScrollView 
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header Fecha */}
           <View style={[styles.dateCard, SHADOWS.light]}>
             <View style={styles.dateIconWrapper}>
               <CalendarIcon />
             </View>
             <View>
               <Text style={styles.dateLabel}>Programando para</Text>
-              <Text style={styles.dateValue}>{formatDate(initialDate)}</Text>
+              <Text style={styles.dateValue}>{formatDate(initialDate!)}</Text>
             </View>
           </View>
 
-          {/* Formulario */}
           <Animated.View style={[styles.form, { opacity: formOpacity }]}>
-            {/* Nombre */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, focusedInput === 'nombre' && styles.labelActive]}>Nombre de la tarea</Text>
               <View style={[styles.inputWrapper, focusedInput === 'nombre' && styles.inputWrapperActive]}>
@@ -128,13 +130,12 @@ export default function AddTaskScreen({ navigation, route }) {
                   onChangeText={setNombre}
                   onFocus={() => setFocusedInput('nombre')}
                   onBlur={() => setFocusedInput(null)}
-                  placeholder="Ej: Estudiar React Native"
-                  placeholderTextColor={COLORS.textMuted}
+                  placeholder="Ej: Estudiar TypeScript"
+                  placeholderTextColor="#555"
                 />
               </View>
             </View>
 
-            {/* Descripción */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, focusedInput === 'descripcion' && styles.labelActive]}>Descripción (opcional)</Text>
               <View style={[styles.inputWrapper, styles.textAreaWrapper, focusedInput === 'descripcion' && styles.inputWrapperActive]}>
@@ -148,12 +149,11 @@ export default function AddTaskScreen({ navigation, route }) {
                   multiline
                   numberOfLines={4}
                   placeholder="Detalles adicionales..."
-                  placeholderTextColor={COLORS.textMuted}
+                  placeholderTextColor="#555"
                 />
               </View>
             </View>
 
-            {/* Tiempo */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, focusedInput === 'tiempo' && styles.labelActive]}>Tiempo estimado</Text>
               <View style={styles.timeRow}>
@@ -167,7 +167,6 @@ export default function AddTaskScreen({ navigation, route }) {
                     onBlur={() => setFocusedInput(null)}
                     keyboardType="numeric"
                     placeholder="0"
-                    placeholderTextColor={COLORS.textMuted}
                     maxLength={2}
                   />
                 </View>
@@ -175,7 +174,6 @@ export default function AddTaskScreen({ navigation, route }) {
               </View>
             </View>
 
-            {/* Botón Guardar */}
             <TouchableOpacity 
               style={[styles.saveBtn, !isFormValid && styles.saveBtnDisabled, SHADOWS.medium]} 
               onPress={handleSave}
@@ -191,83 +189,38 @@ export default function AddTaskScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.primary },
-  scrollContent: { padding: SPACING.lg, paddingTop: SPACING.md },
+  container: { flex: 1, backgroundColor: COLORS.black },
+  scrollContent: { padding: SPACING.lg, paddingTop: 20 },
   dateCard: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: COLORS.card, 
-    padding: SPACING.md, 
-    borderRadius: RADIUS.md, 
-    marginBottom: SPACING.xl,
-    borderWidth: 1, 
-    borderColor: COLORS.border
+    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.secondary, 
+    padding: SPACING.md, borderRadius: RADIUS.md, marginBottom: SPACING.xl,
+    borderWidth: 1, borderColor: COLORS.border
   },
   dateIconWrapper: { 
-    width: 44, 
-    height: 44, 
-    borderRadius: RADIUS.md, 
-    backgroundColor: COLORS.primary, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginRight: SPACING.sm 
+    width: 40, height: 40, borderRadius: RADIUS.sm, backgroundColor: 'rgba(0,0,0,0.05)', 
+    justifyContent: 'center', alignItems: 'center', marginRight: 12 
   },
-  dateLabel: { 
-    color: COLORS.textMuted, 
-    fontSize: 11, 
-    fontWeight: '600', 
-    textTransform: 'uppercase',
-    letterSpacing: 0.5 
-  },
-  dateValue: { 
-    color: COLORS.textMain, 
-    fontSize: 16, 
-    fontWeight: '700', 
-    textTransform: 'capitalize',
-    marginTop: 2 
-  },
-
+  dateLabel: { color: '#555', fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
+  dateValue: { color: COLORS.black, fontSize: 16, fontWeight: '700', textTransform: 'capitalize' },
   form: { flex: 1 },
   inputGroup: { marginBottom: SPACING.lg },
-  label: { 
-    color: COLORS.textMain, 
-    fontSize: 14, 
-    fontWeight: '600', 
-    marginBottom: 8, 
-    marginLeft: 4 
-  },
+  label: { color: COLORS.textMain, fontSize: 14, fontWeight: '600', marginBottom: 8, marginLeft: 4 },
   labelActive: { color: COLORS.secondary },
   inputWrapper: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: COLORS.card, 
-    borderRadius: RADIUS.md, 
-    paddingHorizontal: SPACING.md, 
-    borderWidth: 1.5, 
-    borderColor: COLORS.border 
+    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.secondary, 
+    borderRadius: RADIUS.md, paddingHorizontal: 16, borderWidth: 1.5, borderColor: COLORS.border 
   },
   inputWrapperActive: { borderColor: COLORS.secondary },
-  input: { 
-    flex: 1, 
-    paddingVertical: 14, 
-    marginLeft: SPACING.sm, 
-    color: COLORS.textMain, 
-    fontSize: 16 
-  },
+  input: { flex: 1, paddingVertical: 14, marginLeft: 12, color: COLORS.black, fontSize: 16, fontWeight: '500' },
   textAreaWrapper: { alignItems: 'flex-start', paddingTop: 14 },
   textArea: { textAlignVertical: 'top', height: 100 },
-  
   timeRow: { flexDirection: 'row', alignItems: 'center' },
   timeInputWrapper: { width: 100 },
-  timeUnit: { marginLeft: SPACING.sm, color: COLORS.textMuted, fontSize: 16, fontWeight: '600' },
-
+  timeUnit: { marginLeft: 12, color: COLORS.textMuted, fontSize: 16, fontWeight: '600' },
   saveBtn: { 
-    backgroundColor: COLORS.secondary, 
-    paddingVertical: 16, 
-    borderRadius: RADIUS.md, 
-    alignItems: 'center', 
-    marginTop: SPACING.xl 
+    backgroundColor: COLORS.secondary, paddingVertical: 18, borderRadius: RADIUS.md, 
+    alignItems: 'center', marginTop: SPACING.lg 
   },
-  saveBtnDisabled: { backgroundColor: COLORS.border, opacity: 0.6 },
-  saveBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '700' }
+  saveBtnDisabled: { backgroundColor: '#333', opacity: 0.5 },
+  saveBtnText: { color: COLORS.black, fontSize: 16, fontWeight: '700' }
 });

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -9,38 +9,37 @@ import {
   TextInput, 
   Alert,
   KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  Keyboard
+  StatusBar
 } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
-import { useFocusEffect } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
+import Svg, { Path } from 'react-native-svg';
 import { getTasksByDate } from '../database/db_queries_task';
 import { getNotesByTaskId, createNote } from '../database/db_queries_note';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
+import { Tarea, Nota, RootStackParamList } from '../types';
 
-// Iconos SVG personalizados
-const TaskIcon = ({ size = 20, color = COLORS.secondary }) => (
+interface DayDetailScreenProps {
+  route: RouteProp<RootStackParamList, 'DetalleDia'>;
+}
+
+interface TareaConNotas extends Tarea {
+  notas: Nota[];
+}
+
+const TaskIcon = ({ size = 20, color = COLORS.accent }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
     <Path d="M9 5a2 2 0 012-2h2a2 2 0 012 2v0a2 2 0 01-2 2h-2a2 2 0 01-2-2v0z" stroke={color} strokeWidth={2}/>
   </Svg>
 );
 
-const NoteIcon = ({ size = 16, color = COLORS.textMuted }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
-    <Path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
-  </Svg>
-);
-
-const PlusIcon = ({ size = 18, color = COLORS.white }) => (
+const PlusIcon = ({ size = 18, color = COLORS.black }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M12 5v14M5 12h14" stroke={color} strokeWidth={2.5} strokeLinecap="round"/>
   </Svg>
 );
 
-const CalendarIcon = ({ size = 24, color = COLORS.secondary }) => (
+const CalendarIcon = ({ size = 24, color = COLORS.accent }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={color} strokeWidth={2} strokeLinecap="round"/>
   </Svg>
@@ -52,37 +51,32 @@ const CloseIcon = ({ size = 24, color = COLORS.textMain }) => (
   </Svg>
 );
 
-export default function DayDetailScreen({ route, navigation }) {
+export default function DayDetailScreen({ route }: DayDetailScreenProps) {
   const { date } = route.params;
-  const [tareasConNotas, setTareasConNotas] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedTareaId, setSelectedTareaId] = useState(null);
-  const [nuevoTitulo, setNuevoTitulo] = useState('');
-  const [nuevoContenido, setNuevoContenido] = useState('');
+  const [tareasConNotas, setTareasConNotas] = useState<TareaConNotas[]>([]);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedTareaId, setSelectedTareaId] = useState<number | null>(null);
+  const [nuevoTitulo, setNuevoTitulo] = useState<string>('');
+  const [nuevoContenido, setNuevoContenido] = useState<string>('');
 
   const today = new Date().toISOString().split('T')[0];
 
-  const cargarDatos = useCallback(() => {
+  const cargarDatos = (): void => {
     const tareas = getTasksByDate(date);
     const datosCompletos = tareas.map(tarea => {
       const notas = getNotesByTaskId(tarea.id);
       return { ...tarea, notas };
     });
     setTareasConNotas(datosCompletos);
-  }, [date]);
+  };
 
-  useFocusEffect(
-    useCallback(() => {
-      cargarDatos();
-    }, [cargarDatos])
-  );
+  useEffect(() => { cargarDatos(); }, [date]);
 
-  const handleGuardarNota = () => {
-    if (!nuevoTitulo.trim() || !nuevoContenido.trim()) {
-      Alert.alert("Campos incompletos", "Completa todos los campos para guardar la nota.");
+  const handleGuardarNota = (): void => {
+    if (!nuevoTitulo.trim() || !nuevoContenido.trim() || selectedTareaId === null) {
+      Alert.alert("⚠️ Error", "Completa todos los campos");
       return;
     }
-    Keyboard.dismiss();
     createNote(selectedTareaId, nuevoTitulo, nuevoContenido, 'conclusión');
     setModalVisible(false);
     setNuevoTitulo('');
@@ -90,13 +84,13 @@ export default function DayDetailScreen({ route, navigation }) {
     cargarDatos();
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string): string => {
     if (dateString === today) return 'Hoy';
     const dateObj = new Date(dateString + 'T00:00:00');
     return dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
   };
 
-  const renderTareaItem = ({ item }) => (
+  const renderTareaItem = ({ item }: { item: TareaConNotas }) => (
     <View style={[styles.tareaCard, SHADOWS.light]}>
       <View style={styles.tareaHeader}>
         <View style={styles.tareaInfo}>
@@ -107,7 +101,7 @@ export default function DayDetailScreen({ route, navigation }) {
           style={styles.addNotaMiniBtn} 
           onPress={() => { setSelectedTareaId(item.id); setModalVisible(true); }}
         >
-          <PlusIcon color={COLORS.secondary} size={14} />
+          <PlusIcon size={14} />
         </TouchableOpacity>
       </View>
 
@@ -131,9 +125,8 @@ export default function DayDetailScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
       
-      {/* Header Info */}
       <View style={[styles.summaryCard, SHADOWS.medium]}>
         <View style={styles.summaryTop}>
           <View style={styles.calendarIconBg}>
@@ -171,29 +164,21 @@ export default function DayDetailScreen({ route, navigation }) {
         }
       />
 
-      {/* Modal Nueva Nota */}
       <Modal visible={modalVisible} animationType="fade" transparent>
         <View style={styles.modalOverlay}>
           <TouchableOpacity style={styles.modalBackdrop} onPress={() => setModalVisible(false)} />
           <KeyboardAvoidingView behavior="padding" style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Añadir Conclusión</Text>
-              <TouchableOpacity onPress={() => { Keyboard.dismiss(); setModalVisible(false); }}><CloseIcon /></TouchableOpacity>
+              <TouchableOpacity onPress={() => setModalVisible(false)}><CloseIcon /></TouchableOpacity>
             </View>
             <TextInput 
-              style={styles.input} 
-              placeholder="Resumen corto"
-              placeholderTextColor={COLORS.textMuted}
-              value={nuevoTitulo} 
-              onChangeText={setNuevoTitulo}
+              style={styles.input} placeholder="Resumen corto"
+              value={nuevoTitulo} onChangeText={setNuevoTitulo}
             />
             <TextInput 
-              style={[styles.input, styles.textArea]} 
-              placeholder="Detalles de lo aprendido..."
-              placeholderTextColor={COLORS.textMuted}
-              multiline 
-              value={nuevoContenido} 
-              onChangeText={setNuevoContenido}
+              style={[styles.input, styles.textArea]} placeholder="Detalles de lo aprendido..."
+              multiline value={nuevoContenido} onChangeText={setNuevoContenido}
             />
             <TouchableOpacity style={styles.saveBtn} onPress={handleGuardarNota}>
               <Text style={styles.saveBtnText}>Guardar</Text>
@@ -206,117 +191,53 @@ export default function DayDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.primary },
+  container: { flex: 1, backgroundColor: COLORS.black },
   summaryCard: { 
-    backgroundColor: COLORS.card, 
-    margin: SPACING.lg, 
-    borderRadius: RADIUS.lg, 
-    padding: SPACING.lg, 
-    borderWidth: 1, 
-    borderColor: COLORS.border 
+    backgroundColor: COLORS.secondary, margin: SPACING.lg, borderRadius: RADIUS.lg, 
+    padding: 20, borderWidth: 1, borderColor: COLORS.border 
   },
-  summaryTop: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.md },
+  summaryTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
   calendarIconBg: { 
-    width: 44, 
-    height: 44, 
-    borderRadius: RADIUS.md, 
-    backgroundColor: COLORS.primary, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginRight: SPACING.sm 
+    width: 44, height: 44, borderRadius: RADIUS.sm, backgroundColor: 'rgba(0,0,0,0.05)', 
+    justifyContent: 'center', alignItems: 'center', marginRight: 12 
   },
-  summaryLabel: { 
-    color: COLORS.textMuted, 
-    fontSize: 11, 
-    fontWeight: '600', 
-    textTransform: 'uppercase',
-    letterSpacing: 0.5 
-  },
-  summaryDate: { 
-    color: COLORS.textMain, 
-    fontSize: 18, 
-    fontWeight: '700', 
-    textTransform: 'capitalize',
-    marginTop: 2 
-  },
-  divider: { height: 1, backgroundColor: COLORS.border, marginBottom: SPACING.md },
+  summaryLabel: { color: '#555', fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
+  summaryDate: { color: COLORS.black, fontSize: 18, fontWeight: '700', textTransform: 'capitalize' },
+  divider: { height: 1, backgroundColor: 'rgba(0,0,0,0.1)', marginBottom: 15 },
   statsRow: { flexDirection: 'row', justifyContent: 'space-around' },
   stat: { alignItems: 'center' },
-  statVal: { color: COLORS.secondary, fontSize: 20, fontWeight: 'bold' },
-  statLab: { color: COLORS.textMuted, fontSize: 12, marginTop: 2 },
-
+  statVal: { color: COLORS.black, fontSize: 20, fontWeight: 'bold' },
+  statLab: { color: '#555', fontSize: 12 },
   listContent: { paddingHorizontal: SPACING.lg, paddingBottom: 40 },
   tareaCard: { 
-    backgroundColor: COLORS.card, 
-    borderRadius: RADIUS.md, 
-    padding: SPACING.md, 
-    marginBottom: SPACING.md, 
-    borderWidth: 1, 
-    borderColor: COLORS.border 
+    backgroundColor: COLORS.secondary, borderRadius: RADIUS.md, padding: 16, 
+    marginBottom: 15, borderWidth: 1, borderColor: COLORS.border 
   },
-  tareaHeader: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginBottom: SPACING.sm 
-  },
+  tareaHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   tareaInfo: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
-  tareaNombre: { color: COLORS.textMain, fontSize: 16, fontWeight: '600' },
+  tareaNombre: { color: COLORS.black, fontSize: 16, fontWeight: '600' },
   addNotaMiniBtn: { 
-    width: 28, 
-    height: 28, 
-    borderRadius: 14, 
-    backgroundColor: COLORS.primary, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
+    width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.05)', 
+    justifyContent: 'center', alignItems: 'center' 
   },
-
-  notasWrapper: { borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: SPACING.sm },
+  notasWrapper: { borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.05)', paddingTop: 12 },
   notaItem: { flexDirection: 'row', marginBottom: 10, gap: 10 },
-  notaDot: { 
-    width: 6, 
-    height: 6, 
-    borderRadius: 3, 
-    backgroundColor: COLORS.secondary, 
-    marginTop: 6 
-  },
-  notaItemTitle: { color: COLORS.textMain, fontSize: 14, fontWeight: '600' },
-  notaItemBody: { color: COLORS.textMuted, fontSize: 13, lineHeight: 18 },
-  emptyNotas: { color: COLORS.textMuted, fontSize: 12, fontStyle: 'italic' },
-
-  emptyContainer: { alignItems: 'center', marginTop: 60 },
-  emptyText: { color: COLORS.textMuted, fontSize: 15 },
-
-  modalOverlay: { flex: 1, backgroundColor: COLORS.overlay, justifyContent: 'center', padding: SPACING.lg },
+  notaDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.accent, marginTop: 6 },
+  notaItemTitle: { color: COLORS.black, fontSize: 14, fontWeight: '600' },
+  notaItemBody: { color: '#555', fontSize: 13, lineHeight: 18 },
+  emptyNotas: { color: '#777', fontSize: 12, fontStyle: 'italic' },
+  emptyContainer: { alignItems: 'center', marginTop: 40 },
+  emptyText: { color: COLORS.textMuted },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 20 },
   modalBackdrop: { ...StyleSheet.absoluteFillObject },
   modalContent: { 
-    backgroundColor: COLORS.card, 
-    borderRadius: RADIUS.lg, 
-    padding: SPACING.lg 
+    backgroundColor: COLORS.secondary, borderRadius: RADIUS.lg, padding: 24, 
+    borderWidth: 1, borderColor: COLORS.border 
   },
-  modalHeader: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginBottom: SPACING.lg 
-  },
-  modalTitle: { color: COLORS.textMain, fontSize: 18, fontWeight: '700' },
-  input: { 
-    backgroundColor: COLORS.primary, 
-    borderRadius: RADIUS.md, 
-    padding: SPACING.md, 
-    marginBottom: SPACING.md,
-    color: COLORS.textMain,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border
-  },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalTitle: { color: COLORS.black, fontSize: 18, fontWeight: '700' },
+  input: { backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: RADIUS.md, padding: 15, marginBottom: 15, color: COLORS.black },
   textArea: { height: 100, textAlignVertical: 'top' },
-  saveBtn: { 
-    backgroundColor: COLORS.secondary, 
-    padding: 16, 
-    borderRadius: RADIUS.md, 
-    alignItems: 'center' 
-  },
-  saveBtnText: { color: COLORS.white, fontWeight: '700', fontSize: 16 }
+  saveBtn: { backgroundColor: COLORS.black, padding: 16, borderRadius: RADIUS.md, alignItems: 'center' },
+  saveBtnText: { color: COLORS.secondary, fontWeight: '700' }
 });
