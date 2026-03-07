@@ -26,20 +26,20 @@ interface TareaConNotas extends Tarea {
   notas: Nota[];
 }
 
-const TaskIcon = ({ size = 20, color = COLORS.secondary }) => (
+const TaskIcon = ({ size = 20, color = COLORS.accent }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
     <Path d="M9 5a2 2 0 012-2h2a2 2 0 012 2v0a2 2 0 01-2 2h-2a2 2 0 01-2-2v0z" stroke={color} strokeWidth={2}/>
   </Svg>
 );
 
-const PlusIcon = ({ size = 18, color = COLORS.secondary }) => (
+const PlusIcon = ({ size = 18, color = COLORS.black }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M12 5v14M5 12h14" stroke={color} strokeWidth={2.5} strokeLinecap="round"/>
   </Svg>
 );
 
-const CalendarIcon = ({ size = 24, color = COLORS.secondary }) => (
+const CalendarIcon = ({ size = 24, color = COLORS.accent }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={color} strokeWidth={2} strokeLinecap="round"/>
   </Svg>
@@ -62,12 +62,16 @@ export default function DayDetailScreen({ route }: DayDetailScreenProps) {
   const today = new Date().toISOString().split('T')[0];
 
   const cargarDatos = (): void => {
-    const tareas = getTasksByDate(date);
-    const datosCompletos = tareas.map(tarea => {
-      const notas = getNotesByTaskId(tarea.id);
-      return { ...tarea, notas };
-    });
-    setTareasConNotas(datosCompletos);
+    try {
+      const tareas = getTasksByDate(date);
+      const datosCompletos = tareas.map(tarea => {
+        const notas = getNotesByTaskId(tarea.id);
+        return { ...tarea, notas };
+      });
+      setTareasConNotas(datosCompletos);
+    } catch (error) {
+      console.error("Error al cargar datos del día:", error);
+    }
   };
 
   useEffect(() => { cargarDatos(); }, [date]);
@@ -77,11 +81,15 @@ export default function DayDetailScreen({ route }: DayDetailScreenProps) {
       Alert.alert("⚠️ Error", "Completa todos los campos");
       return;
     }
-    createNote(selectedTareaId, nuevoTitulo, nuevoContenido, 'conclusión');
-    setModalVisible(false);
-    setNuevoTitulo('');
-    setNuevoContenido('');
-    cargarDatos();
+    try {
+      createNote(selectedTareaId, nuevoTitulo, nuevoContenido, 'conclusión');
+      setModalVisible(false);
+      setNuevoTitulo('');
+      setNuevoContenido('');
+      cargarDatos();
+    } catch (error) {
+      Alert.alert("Error", "No se pudo guardar la nota.");
+    }
   };
 
   const formatDate = (dateString: string): string => {
@@ -174,12 +182,10 @@ export default function DayDetailScreen({ route }: DayDetailScreenProps) {
             </View>
             <TextInput 
               style={styles.input} placeholder="Resumen corto"
-              placeholderTextColor={COLORS.textMuted}
               value={nuevoTitulo} onChangeText={setNuevoTitulo}
             />
             <TextInput 
               style={[styles.input, styles.textArea]} placeholder="Detalles de lo aprendido..."
-              placeholderTextColor={COLORS.textMuted}
               multiline value={nuevoContenido} onChangeText={setNuevoContenido}
             />
             <TouchableOpacity style={styles.saveBtn} onPress={handleGuardarNota}>
@@ -194,52 +200,37 @@ export default function DayDetailScreen({ route }: DayDetailScreenProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.primary },
-  summaryCard: { 
-    backgroundColor: COLORS.white, margin: SPACING.lg, borderRadius: RADIUS.lg, 
-    padding: 20, borderWidth: 1, borderColor: COLORS.border 
-  },
+  summaryCard: { backgroundColor: COLORS.secondary, margin: SPACING.lg, borderRadius: RADIUS.lg, padding: 20, borderWidth: 1, borderColor: COLORS.border },
   summaryTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
-  calendarIconBg: { 
-    width: 44, height: 44, borderRadius: RADIUS.sm, backgroundColor: COLORS.secondaryLight, 
-    justifyContent: 'center', alignItems: 'center', marginRight: 12 
-  },
-  summaryLabel: { color: COLORS.textMuted, fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
-  summaryDate: { color: COLORS.textMain, fontSize: 18, fontWeight: '700', textTransform: 'capitalize' },
-  divider: { height: 1, backgroundColor: COLORS.border, marginBottom: 15 },
+  calendarIconBg: { width: 44, height: 44, borderRadius: RADIUS.sm, backgroundColor: 'rgba(0,0,0,0.05)', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  summaryLabel: { color: '#555', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  summaryDate: { color: COLORS.black, fontSize: 18, fontWeight: '700', textTransform: 'capitalize' },
+  divider: { height: 1, backgroundColor: 'rgba(0,0,0,0.1)', marginBottom: 15 },
   statsRow: { flexDirection: 'row', justifyContent: 'space-around' },
   stat: { alignItems: 'center' },
-  statVal: { color: COLORS.secondary, fontSize: 20, fontWeight: 'bold' },
-  statLab: { color: COLORS.textMuted, fontSize: 12 },
+  statVal: { color: COLORS.black, fontSize: 20, fontWeight: 'bold' },
+  statLab: { color: '#555', fontSize: 12 },
   listContent: { paddingHorizontal: SPACING.lg, paddingBottom: 40 },
-  tareaCard: { 
-    backgroundColor: COLORS.white, borderRadius: RADIUS.md, padding: 16, 
-    marginBottom: 15, borderWidth: 1, borderColor: COLORS.border 
-  },
+  tareaCard: { backgroundColor: COLORS.secondary, borderRadius: RADIUS.md, padding: 16, marginBottom: 15, borderWidth: 1, borderColor: COLORS.border },
   tareaHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   tareaInfo: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
-  tareaNombre: { color: COLORS.textMain, fontSize: 16, fontWeight: '600' },
-  addNotaMiniBtn: { 
-    width: 28, height: 28, borderRadius: 14, backgroundColor: COLORS.secondaryLight, 
-    justifyContent: 'center', alignItems: 'center' 
-  },
-  notasWrapper: { borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 12 },
+  tareaNombre: { color: COLORS.black, fontSize: 16, fontWeight: '600' },
+  addNotaMiniBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.05)', justifyContent: 'center', alignItems: 'center' },
+  notasWrapper: { borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.05)', paddingTop: 12 },
   notaItem: { flexDirection: 'row', marginBottom: 10, gap: 10 },
-  notaDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.secondary, marginTop: 6 },
-  notaItemTitle: { color: COLORS.textMain, fontSize: 14, fontWeight: '600' },
-  notaItemBody: { color: COLORS.textMuted, fontSize: 13, lineHeight: 18 },
-  emptyNotas: { color: COLORS.textMuted, fontSize: 12, fontStyle: 'italic' },
+  notaDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.accent, marginTop: 6 },
+  notaItemTitle: { color: COLORS.black, fontSize: 14, fontWeight: '600' },
+  notaItemBody: { color: '#555', fontSize: 13, lineHeight: 18 },
+  emptyNotas: { color: '#777', fontSize: 12, fontStyle: 'italic' },
   emptyContainer: { alignItems: 'center', marginTop: 40 },
   emptyText: { color: COLORS.textMuted },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 20 },
   modalBackdrop: { ...StyleSheet.absoluteFillObject },
-  modalContent: { 
-    backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 24, 
-    borderWidth: 1, borderColor: COLORS.border 
-  },
+  modalContent: { backgroundColor: COLORS.secondary, borderRadius: RADIUS.lg, padding: 24, borderWidth: 1, borderColor: COLORS.border },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { color: COLORS.textMain, fontSize: 18, fontWeight: '700' },
-  input: { backgroundColor: COLORS.secondaryLight, borderRadius: RADIUS.md, padding: 15, marginBottom: 15, color: COLORS.textMain },
+  modalTitle: { color: COLORS.black, fontSize: 18, fontWeight: '700' },
+  input: { backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: RADIUS.md, padding: 15, marginBottom: 15, color: COLORS.black },
   textArea: { height: 100, textAlignVertical: 'top' },
-  saveBtn: { backgroundColor: COLORS.secondary, padding: 16, borderRadius: RADIUS.md, alignItems: 'center' },
-  saveBtnText: { color: COLORS.white, fontWeight: '700' }
+  saveBtn: { backgroundColor: COLORS.black, padding: 16, borderRadius: RADIUS.md, alignItems: 'center' },
+  saveBtnText: { color: COLORS.secondary, fontWeight: '700' }
 });
