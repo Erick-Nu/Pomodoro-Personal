@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -8,12 +8,13 @@ import {
   Modal, 
   TextInput, 
   Alert,
-  Animated,
   KeyboardAvoidingView,
   Platform,
-  StatusBar
+  StatusBar,
+  Keyboard
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
+import { useFocusEffect } from '@react-navigation/native';
 import { getTasksByDate } from '../database/db_queries_task';
 import { getNotesByTaskId, createNote } from '../database/db_queries_note';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
@@ -61,22 +62,27 @@ export default function DayDetailScreen({ route, navigation }) {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const cargarDatos = () => {
+  const cargarDatos = useCallback(() => {
     const tareas = getTasksByDate(date);
     const datosCompletos = tareas.map(tarea => {
       const notas = getNotesByTaskId(tarea.id);
       return { ...tarea, notas };
     });
     setTareasConNotas(datosCompletos);
-  };
+  }, [date]);
 
-  useEffect(() => { cargarDatos(); }, [date]);
+  useFocusEffect(
+    useCallback(() => {
+      cargarDatos();
+    }, [cargarDatos])
+  );
 
   const handleGuardarNota = () => {
     if (!nuevoTitulo.trim() || !nuevoContenido.trim()) {
       Alert.alert("⚠️ Error", "Completa todos los campos");
       return;
     }
+    Keyboard.dismiss();
     createNote(selectedTareaId, nuevoTitulo, nuevoContenido, 'conclusión');
     setModalVisible(false);
     setNuevoTitulo('');
@@ -172,15 +178,22 @@ export default function DayDetailScreen({ route, navigation }) {
           <KeyboardAvoidingView behavior="padding" style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Añadir Conclusión</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}><CloseIcon /></TouchableOpacity>
+              <TouchableOpacity onPress={() => { Keyboard.dismiss(); setModalVisible(false); }}><CloseIcon /></TouchableOpacity>
             </View>
             <TextInput 
-              style={styles.input} placeholder="Resumen corto"
-              value={nuevoTitulo} onChangeText={setNuevoTitulo}
+              style={styles.input} 
+              placeholder="Resumen corto"
+              placeholderTextColor={COLORS.textMuted}
+              value={nuevoTitulo} 
+              onChangeText={setNuevoTitulo}
             />
             <TextInput 
-              style={[styles.input, styles.textArea]} placeholder="Detalles de lo aprendido..."
-              multiline value={nuevoContenido} onChangeText={setNuevoContenido}
+              style={[styles.input, styles.textArea]} 
+              placeholder="Detalles de lo aprendido..."
+              placeholderTextColor={COLORS.textMuted}
+              multiline 
+              value={nuevoContenido} 
+              onChangeText={setNuevoContenido}
             />
             <TouchableOpacity style={styles.saveBtn} onPress={handleGuardarNota}>
               <Text style={styles.saveBtnText}>Guardar</Text>

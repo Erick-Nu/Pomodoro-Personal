@@ -25,6 +25,12 @@ export const getTasksByDate = (fecha) => {
   return db.getAllSync(SQL_SELECT_BY_DATE, [fecha]);
 };
 
+const SQL_SELECT_BY_ID = 'SELECT * FROM tareas WHERE id = ?';
+export const getTaskById = (id) => {
+  const results = db.getAllSync(SQL_SELECT_BY_ID, [id]);
+  return results.length > 0 ? results[0] : null;
+};
+
 
 const SQL_UPDATE_PROGRESS = 'UPDATE tareas SET tiempo_acumulado = tiempo_acumulado + ? WHERE id = ?';
 const SQL_INSERT_SESSION = 'INSERT INTO sesiones (tarea_id, minutos_aportados) VALUES (?, ?)';

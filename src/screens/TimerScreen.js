@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -11,7 +11,7 @@ import {
   StatusBar,
   Dimensions
 } from 'react-native';
-import Svg, { Circle, Path, G } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import * as MediaLibrary from 'expo-media-library';
@@ -89,7 +89,6 @@ export default function TimerScreen({ route, navigation }) {
 
   // Animaciones
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const progressAnim = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
   const modalOpacity = useRef(new Animated.Value(0)).current;
   const modalTranslate = useRef(new Animated.Value(300)).current;

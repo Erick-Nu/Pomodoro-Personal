@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -10,14 +10,11 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Animated,
-  Dimensions,
   StatusBar
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { createTask } from '../database/db_queries_task';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
-
-const { width } = Dimensions.get('window');
 
 // Iconos SVG personalizados con el nuevo tema
 const TaskIcon = ({ size = 20, color = COLORS.textMuted }) => (
@@ -55,7 +52,6 @@ export default function AddTaskScreen({ navigation, route }) {
   const [horas, setHoras] = useState('');
   const [focusedInput, setFocusedInput] = useState(null);
   
-  const buttonScale = useRef(new Animated.Value(1)).current;
   const formOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -170,6 +166,7 @@ export default function AddTaskScreen({ navigation, route }) {
                     onBlur={() => setFocusedInput(null)}
                     keyboardType="numeric"
                     placeholder="0"
+                    placeholderTextColor={COLORS.textMuted}
                     maxLength={2}
                   />
                 </View>

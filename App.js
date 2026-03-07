@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Platform } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -79,6 +78,16 @@ function CalendarStack() {
       <Stack.Screen name="DetalleDia" component={DayDetailScreen} options={{ title: 'Historial' }} />
       <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ title: 'Nueva Tarea' }} />
       <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ title: 'Tarea' }} />
+      <Stack.Screen 
+        name="Timer" 
+        component={TimerScreen} 
+        options={{ 
+          title: 'Enfoque',
+          headerBackVisible: false,
+          gestureEnabled: false,
+          headerStyle: { backgroundColor: COLORS.primary }
+        }} 
+      />
     </Stack.Navigator>
   );
 }

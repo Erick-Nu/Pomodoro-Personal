@@ -1,24 +1,23 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
-  FlatList, 
   TouchableOpacity, 
   Modal, 
   TextInput, 
   Alert,
-  Animated,
   StatusBar,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  Keyboard
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle } from 'react-native-svg';
-import { deleteTask } from '../database/db_queries_task';
-import { getNotesByTaskId, createNote } from '../database/db_queries_note';
+import { deleteTask, getTaskById } from '../database/db_queries_task';
+import { getNotesByTaskId, createNote, deleteNote } from '../database/db_queries_note';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 
 // Iconos SVG personalizados
@@ -70,29 +69,47 @@ const TrashIcon = ({ size = 20, color = COLORS.accent }) => (
 );
 
 export default function TaskDetailScreen({ route, navigation }) {
-  const { tarea } = route.params;
+  const { tarea: tareaInicial } = route.params;
+  const [tarea, setTarea] = useState(tareaInicial);
   const [notas, setNotas] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [nuevoTitulo, setNuevoTitulo] = useState('');
   const [nuevoContenido, setNuevoContenido] = useState('');
 
-  const cargarNotas = useCallback(() => {
-    const data = getNotesByTaskId(tarea.id);
+  const cargarDatos = useCallback(() => {
+    // Recargar tarea actualizada desde la BD
+    const tareaActualizada = getTaskById(tareaInicial.id);
+    if (tareaActualizada) {
+      setTarea(tareaActualizada);
+    }
+    // Cargar notas
+    const data = getNotesByTaskId(tareaInicial.id);
     setNotas(data);
-  }, [tarea.id]);
+  }, [tareaInicial.id]);
 
-  useFocusEffect(useCallback(() => { cargarNotas(); }, [cargarNotas]));
+  useFocusEffect(useCallback(() => { cargarDatos(); }, [cargarDatos]));
 
   const handleGuardarNota = () => {
     if (!nuevoTitulo.trim() || !nuevoContenido.trim()) {
       Alert.alert("⚠️ Campos incompletos", "Por favor completa el título y el contenido.");
       return;
     }
+    Keyboard.dismiss();
     createNote(tarea.id, nuevoTitulo, nuevoContenido, 'nota');
     setModalVisible(false);
     setNuevoTitulo('');
     setNuevoContenido('');
-    cargarNotas();
+    cargarDatos();
+  };
+
+  const handleDeleteNote = (notaId) => {
+    Alert.alert("🗑️ Eliminar nota", "¿Estás seguro de eliminar esta nota?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Eliminar", style: "destructive", onPress: () => {
+        deleteNote(notaId);
+        cargarDatos();
+      }}
+    ]);
   };
 
   const handleDeleteTask = () => {
@@ -113,7 +130,9 @@ export default function TaskDetailScreen({ route, navigation }) {
     return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
   };
 
-  const progress = Math.min((tarea.tiempo_acumulado / tarea.tiempo_registrado) * 100, 100) || 0;
+  const progress = tarea.tiempo_registrado > 0 
+    ? Math.min((tarea.tiempo_acumulado / tarea.tiempo_registrado) * 100, 100) 
+    : 0;
 
   return (
     <View style={styles.container}>
@@ -178,13 +197,19 @@ export default function TaskDetailScreen({ route, navigation }) {
 
         {notas.length > 0 ? (
           notas.map((nota) => (
-            <View key={nota.id} style={[styles.notaCard, SHADOWS.light]}>
+            <TouchableOpacity 
+              key={nota.id} 
+              style={[styles.notaCard, SHADOWS.light]}
+              onLongPress={() => handleDeleteNote(nota.id)}
+              activeOpacity={0.8}
+            >
               <View style={styles.notaHeader}>
                 <NoteIcon size={16} />
                 <Text style={styles.notaTitle} numberOfLines={1}>{nota.titulo}</Text>
               </View>
               <Text style={styles.notaBody}>{nota.contenido}</Text>
-            </View>
+              <Text style={styles.notaHint}>Mantén presionado para eliminar</Text>
+            </TouchableOpacity>
           ))
         ) : (
           <View style={styles.emptyBox}>
@@ -200,17 +225,25 @@ export default function TaskDetailScreen({ route, navigation }) {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Añadir Nota</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <TouchableOpacity onPress={() => { Keyboard.dismiss(); setModalVisible(false); }}>
                 <CloseIcon />
               </TouchableOpacity>
             </View>
             <TextInput 
-              style={styles.input} placeholder="Título de la nota"
-              value={nuevoTitulo} onChangeText={setNuevoTitulo}
+              style={styles.input} 
+              placeholder="Título de la nota"
+              placeholderTextColor={COLORS.textMuted}
+              value={nuevoTitulo} 
+              onChangeText={setNuevoTitulo}
             />
             <TextInput 
-              style={[styles.input, styles.textArea]} placeholder="¿Qué lograste hoy?"
-              multiline numberOfLines={4} value={nuevoContenido} onChangeText={setNuevoContenido}
+              style={[styles.input, styles.textArea]} 
+              placeholder="¿Qué lograste hoy?"
+              placeholderTextColor={COLORS.textMuted}
+              multiline 
+              numberOfLines={4} 
+              value={nuevoContenido} 
+              onChangeText={setNuevoContenido}
             />
             <TouchableOpacity style={styles.saveBtn} onPress={handleGuardarNota}>
               <Text style={styles.saveBtnText}>Guardar Nota</Text>
@@ -274,6 +307,7 @@ const styles = StyleSheet.create({
   notaHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   notaTitle: { color: COLORS.textMain, fontSize: 15, fontWeight: '600' },
   notaBody: { color: COLORS.textMuted, fontSize: 14, lineHeight: 20 },
+  notaHint: { color: COLORS.textMuted, fontSize: 11, marginTop: 8, fontStyle: 'italic', opacity: 0.6 },
 
   emptyBox: { alignItems: 'center', marginTop: 40, opacity: 0.5 },
   emptyText: { color: COLORS.textMuted, fontSize: 14, marginTop: 10, textAlign: 'center' },
