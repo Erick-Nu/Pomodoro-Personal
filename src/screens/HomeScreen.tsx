@@ -67,7 +67,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             <Ionicons 
               name={isCompleted ? "checkmark-circle" : "ellipse-outline"} 
               size={26} 
-              color={isCompleted ? COLORS.secondary : COLORS.accent} 
+              color={COLORS.secondary} 
             />
           </View>
 
@@ -95,7 +95,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                     styles.progressBarFill, 
                     { 
                       width: `${progress}%`,
-                      backgroundColor: isCompleted ? COLORS.accent : COLORS.black 
+                      backgroundColor: isCompleted ? COLORS.secondary : COLORS.secondary 
                     }
                   ]} 
                 />
@@ -109,7 +109,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             onPress={() => navigation.navigate('Timer', { tarea: item })}
           >
             <View style={styles.playIconBg}>
-              <Ionicons name="play" size={22} color={COLORS.black} />
+              <Ionicons name="play" size={22} color={COLORS.secondary} />
             </View>
           </TouchableOpacity>
         </View>
@@ -120,7 +120,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const EmptyState = () => (
     <View style={styles.emptyContainer}>
       <View style={styles.emptyIconContainer}>
-        <Ionicons name="calendar-clear-outline" size={60} color={COLORS.accent} />
+        <Ionicons name="calendar-clear-outline" size={60} color={COLORS.secondary} />
       </View>
       <Text style={styles.emptyTitle}>Sin tareas hoy</Text>
       <Text style={styles.emptySubtitle}>
@@ -140,12 +140,12 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View style={styles.greetingRow}>
-            <Ionicons name={getGreetingIcon()} size={24} color={COLORS.accent} style={{marginRight: 10}} />
+            <Ionicons name={getGreetingIcon()} size={24} color={COLORS.secondary} style={{marginRight: 10}} />
             <View>
               <Text style={styles.saludo}>{getSaludo()}</Text>
               <Text style={styles.fecha}>{formatDate(hoy)}</Text>
@@ -201,7 +201,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           colors={[COLORS.secondary, COLORS.accent]}
           style={styles.fabGradient}
         >
-          <Ionicons name="add" size={32} color={COLORS.black} />
+          <Ionicons name="add" size={32} color={COLORS.white} />
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -209,14 +209,14 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.black },
+  container: { flex: 1, backgroundColor: COLORS.primary },
   header: { 
     paddingHorizontal: SPACING.lg,
     paddingTop: 60,
     paddingBottom: SPACING.xl,
-    backgroundColor: COLORS.black,
+    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(234, 228, 213, 0.15)',
+    borderBottomColor: COLORS.border,
   },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   greetingRow: { flexDirection: 'row', alignItems: 'center' },
@@ -225,18 +225,18 @@ const styles = StyleSheet.create({
   profileButton: { padding: 5 },
   statsCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(242, 242, 242, 0.05)',
+    backgroundColor: COLORS.white,
     borderRadius: RADIUS.md,
     padding: SPACING.md,
     marginTop: SPACING.lg,
     justifyContent: 'space-around',
     borderWidth: 1,
-    borderColor: 'rgba(234, 228, 213, 0.1)',
+    borderColor: COLORS.border,
   },
   statItem: { alignItems: 'center', flex: 1 },
   statNumber: { color: COLORS.secondary, fontSize: 22, fontWeight: 'bold' },
   statLabel: { color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontWeight: '600', textTransform: 'uppercase' },
-  statDivider: { width: 1, backgroundColor: 'rgba(234, 228, 213, 0.1)' },
+  statDivider: { width: 1, backgroundColor: COLORS.border },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   sectionCount: { color: COLORS.textMuted, fontSize: 13 },
   listContent: { paddingBottom: 120 },
   card: { 
-    backgroundColor: COLORS.secondary, 
+    backgroundColor: COLORS.white, 
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.md,
     borderRadius: RADIUS.md,
@@ -260,37 +260,37 @@ const styles = StyleSheet.create({
   checkContainer: { marginRight: 12 },
   cardMain: { flex: 1 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  taskTitle: { color: COLORS.black, fontSize: 16, fontWeight: '700', flex: 1, marginRight: SPACING.sm },
-  statusBadge: { backgroundColor: 'rgba(0, 0, 0, 0.05)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: RADIUS.sm },
-  completedBadge: { backgroundColor: 'rgba(182, 176, 159, 0.2)' },
-  statusText: { color: COLORS.black, fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+  taskTitle: { color: COLORS.textMain, fontSize: 16, fontWeight: '700', flex: 1, marginRight: SPACING.sm },
+  statusBadge: { backgroundColor: COLORS.accentLight, paddingHorizontal: 8, paddingVertical: 3, borderRadius: RADIUS.sm },
+  completedBadge: { backgroundColor: COLORS.secondaryLight },
+  statusText: { color: COLORS.textMain, fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
   timeRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  timeText: { color: '#555', fontSize: 12, marginLeft: 5, fontWeight: '500' },
+  timeText: { color: COLORS.textMuted, fontSize: 12, marginLeft: 5, fontWeight: '500' },
   progressContainer: { flexDirection: 'row', alignItems: 'center' },
-  progressBarBackground: { flex: 1, height: 8, backgroundColor: 'rgba(0, 0, 0, 0.05)', borderRadius: RADIUS.full, overflow: 'hidden' },
+  progressBarBackground: { flex: 1, height: 8, backgroundColor: COLORS.accentLight, borderRadius: RADIUS.full, overflow: 'hidden' },
   progressBarFill: { height: 8, borderRadius: RADIUS.full },
-  progressPercent: { color: COLORS.black, fontSize: 11, marginLeft: SPACING.sm, width: 30, textAlign: 'right', fontWeight: '700' },
+  progressPercent: { color: COLORS.textMain, fontSize: 11, marginLeft: SPACING.sm, width: 30, textAlign: 'right', fontWeight: '700' },
   playButton: { marginLeft: SPACING.md },
   playIconBg: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    backgroundColor: COLORS.secondaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderColor: COLORS.border,
   },
   emptyList: { flex: 1 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: SPACING.xl, paddingTop: 60 },
   emptyIconContainer: {
-    width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(182, 176, 159, 0.1)',
+    width: 100, height: 100, borderRadius: 50, backgroundColor: COLORS.secondaryLight,
     justifyContent: 'center', alignItems: 'center', marginBottom: SPACING.lg,
   },
   emptyTitle: { color: COLORS.textMain, fontSize: 20, fontWeight: 'bold', marginBottom: SPACING.sm },
   emptySubtitle: { color: COLORS.textMuted, fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: SPACING.xl },
   emptyButton: { backgroundColor: COLORS.secondary, paddingHorizontal: SPACING.xl, paddingVertical: 14, borderRadius: RADIUS.md },
-  emptyButtonText: { color: COLORS.black, fontSize: 15, fontWeight: '700' },
+  emptyButtonText: { color: COLORS.white, fontSize: 15, fontWeight: '700' },
   fab: { position: 'absolute', right: SPACING.lg, bottom: 30, borderRadius: RADIUS.full },
   fabGradient: { width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center' },
 });

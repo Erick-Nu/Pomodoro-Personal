@@ -29,7 +29,7 @@ LocaleConfig.locales['es'] = {
 };
 LocaleConfig.defaultLocale = 'es';
 
-const TaskIcon = ({ size = 20, color = COLORS.accent }) => (
+const TaskIcon = ({ size = 20, color = COLORS.secondary }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
     <Path d="M9 5a2 2 0 012-2h2a2 2 0 012 2v0a2 2 0 01-2 2h-2a2 2 0 01-2-2v0z" stroke={color} strokeWidth={2}/>
@@ -79,24 +79,24 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       
       <View style={styles.calendarWrapper}>
         <Calendar
-          onDayPress={day => setSelectedDate(day.dateString)}
+          onDayPress={(day: { dateString: string; }) => setSelectedDate(day.dateString)}
           markedDates={{
             [today]: { marked: true, dotColor: COLORS.secondary },
             [selectedDate]: { selected: true, selectedColor: COLORS.secondary }
           }}
           theme={{
-            backgroundColor: COLORS.black,
-            calendarBackground: COLORS.black,
+            backgroundColor: COLORS.white,
+            calendarBackground: COLORS.white,
             textSectionTitleColor: COLORS.textMuted,
             selectedDayBackgroundColor: COLORS.secondary,
-            selectedDayTextColor: COLORS.black,
+            selectedDayTextColor: COLORS.white,
             todayTextColor: COLORS.secondary,
             dayTextColor: COLORS.textMain,
-            textDisabledColor: '#333',
+            textDisabledColor: COLORS.border,
             dotColor: COLORS.secondary,
             monthTextColor: COLORS.textMain,
             textMonthFontWeight: '700',
@@ -138,10 +138,10 @@ export default function CalendarScreen({ navigation }: CalendarScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.black },
+  container: { flex: 1, backgroundColor: COLORS.primary },
   calendarWrapper: { 
-    backgroundColor: COLORS.black, paddingBottom: 10, 
-    borderBottomWidth: 1, borderBottomColor: 'rgba(234, 228, 213, 0.1)' 
+    backgroundColor: COLORS.white, paddingBottom: 10, 
+    borderBottomWidth: 1, borderBottomColor: COLORS.border 
   },
   taskListContainer: { flex: 1, padding: SPACING.lg },
   listHeader: { marginBottom: 20 },
@@ -149,19 +149,19 @@ const styles = StyleSheet.create({
   taskCount: { color: COLORS.textMuted, fontSize: 14, marginTop: 4 },
   listContainer: { paddingBottom: 20 },
   taskCard: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.secondary, 
+    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
     padding: 16, borderRadius: RADIUS.md, marginBottom: 12,
     borderWidth: 1, borderColor: COLORS.border
   },
   taskIconWrapper: { 
-    width: 40, height: 40, borderRadius: RADIUS.sm, backgroundColor: 'rgba(0,0,0,0.05)', 
+    width: 40, height: 40, borderRadius: RADIUS.sm, backgroundColor: COLORS.secondaryLight, 
     justifyContent: 'center', alignItems: 'center', marginRight: 12 
   },
   taskInfo: { flex: 1 },
-  taskName: { color: COLORS.black, fontSize: 16, fontWeight: '600' },
-  taskTime: { color: '#555', fontSize: 12, marginTop: 2 },
+  taskName: { color: COLORS.textMain, fontSize: 16, fontWeight: '600' },
+  taskTime: { color: COLORS.textMuted, fontSize: 12, marginTop: 2 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 40 },
   emptyTitle: { color: COLORS.textMuted, fontSize: 16, marginBottom: 20 },
   addTaskBtn: { backgroundColor: COLORS.secondary, paddingVertical: 12, paddingHorizontal: 24, borderRadius: RADIUS.md },
-  addTaskBtnText: { color: COLORS.black, fontWeight: '700' }
+  addTaskBtnText: { color: COLORS.white, fontWeight: '700' }
 });

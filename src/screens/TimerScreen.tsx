@@ -29,16 +29,10 @@ interface TimerScreenProps {
   route: RouteProp<RootStackParamList, 'Timer'>;
 }
 
-const MusicNoteIcon = ({ size = 24, color = COLORS.textMain }) => (
+const MusicNoteIcon = ({ size = 24, color = COLORS.secondary }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Circle cx="6" cy="18" r="3" stroke={color} strokeWidth={2}/>
     <Circle cx="18" cy="16" r="3" stroke={color} strokeWidth={2}/>
-  </Svg>
-);
-
-const PlayIcon = ({ size = 24, color = COLORS.black }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth={2}/>
   </Svg>
 );
 
@@ -92,7 +86,7 @@ export default function TimerScreen({ route, navigation }: TimerScreenProps) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       
       <View style={[styles.musicCard, SHADOWS.light]}>
         <View style={styles.musicInfo}>
@@ -107,7 +101,7 @@ export default function TimerScreen({ route, navigation }: TimerScreenProps) {
 
       <View style={styles.timerContainer}>
         <Svg width={radius * 2 + 20} height={radius * 2 + 20}>
-          <Circle cx={radius + 10} cy={radius + 10} r={radius} stroke="#333" strokeWidth={10} fill="none" />
+          <Circle cx={radius + 10} cy={radius + 10} r={radius} stroke={COLORS.border} strokeWidth={10} fill="none" />
           <AnimatedCircle
             cx={radius + 10} cy={radius + 10} r={radius}
             stroke={COLORS.secondary} strokeWidth={10} fill="none"
@@ -126,7 +120,7 @@ export default function TimerScreen({ route, navigation }: TimerScreenProps) {
       <View style={styles.modeRow}>
         {[25, 45, 60].map((m) => (
           <TouchableOpacity key={m} style={[styles.modeBtn, modo === m && styles.activeMode]} onPress={() => {reset(m); setModo(m);}}>
-            <Text style={[styles.modeText, modo === m && {color: COLORS.black}]}>{m}m</Text>
+            <Text style={[styles.modeText, modo === m && {color: COLORS.white}]}>{m}m</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -141,19 +135,19 @@ export default function TimerScreen({ route, navigation }: TimerScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.black, alignItems: 'center', paddingTop: 60 },
-  musicCard: { width: width - 40, backgroundColor: COLORS.secondary, padding: 15, borderRadius: RADIUS.md, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 40 },
+  container: { flex: 1, backgroundColor: COLORS.primary, alignItems: 'center', paddingTop: 60 },
+  musicCard: { width: width - 40, backgroundColor: COLORS.white, padding: 15, borderRadius: RADIUS.md, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 40, borderWidth: 1, borderColor: COLORS.border },
   musicInfo: { flex: 1 },
-  musicTitle: { color: COLORS.black, fontWeight: '600' },
+  musicTitle: { color: COLORS.textMain, fontWeight: '600' },
   timerContainer: { justifyContent: 'center', alignItems: 'center', marginBottom: 40 },
   timeOverlay: { position: 'absolute', alignItems: 'center' },
   timeText: { color: COLORS.textMain, fontSize: 64, fontWeight: '300' },
   taskLabel: { color: COLORS.textMuted, fontSize: 16, marginTop: 10 },
   modeRow: { flexDirection: 'row', gap: 15, marginBottom: 40 },
-  modeBtn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: RADIUS.sm, backgroundColor: '#222' },
-  activeMode: { backgroundColor: COLORS.secondary },
+  modeBtn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: RADIUS.sm, backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border },
+  activeMode: { backgroundColor: COLORS.secondary, borderColor: COLORS.secondary },
   modeText: { color: COLORS.textMuted, fontWeight: '700' },
   mainBtn: { width: width - 80, borderRadius: RADIUS.lg, overflow: 'hidden' },
   mainBtnGradient: { paddingVertical: 18, alignItems: 'center' },
-  mainBtnText: { color: COLORS.black, fontSize: 18, fontWeight: '700' }
+  mainBtnText: { color: COLORS.white, fontSize: 18, fontWeight: '700' }
 });

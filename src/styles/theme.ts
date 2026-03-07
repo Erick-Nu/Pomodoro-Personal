@@ -1,6 +1,6 @@
 /**
  * PomodoroApp - Design System (React Native)
- * Palette: Dark Minimalist (Black, Silver & Sand)
+ * Palette: Corporate Clean (White & Royal Blue)
  */
 
 export interface ColorTheme {
@@ -19,21 +19,21 @@ export interface ColorTheme {
 
 export const COLORS: ColorTheme = {
   // Brand Colors
-  primary: '#000000',      // Negro (Fondo principal)
-  secondary: '#F2F2F2',    // Gris muy claro (Acciones, Títulos)
-  accent: '#B6B09F',       // Sage/Olive Gray (Acentos, Iconos)
+  primary: '#FFFFFF',      // Blanco (Fondo principal)
+  secondary: '#1E40AF',    // Azul Royal (Acciones, Progreso, Títulos)
+  accent: '#1E40AF',       
   
   // Neutrals
-  textMain: '#F2F2F2',     
-  textMuted: '#B6B09F',    
-  border: '#EAE4D5',       
+  textMain: '#1E293B',     /* Azul Pizarra Oscuro para textos nítidos */
+  textMuted: '#64748B',    /* Slate Grey para textos secundarios */
+  border: '#E2E8F0',       /* Gris azulado muy claro para bordes */
   white: '#FFFFFF',
   black: '#000000',
   
-  // Transparency/Overlays
-  secondaryLight: 'rgba(242, 242, 242, 0.1)',
-  accentLight: 'rgba(182, 176, 159, 0.15)',
-  shadow: 'rgba(255, 255, 255, 0.05)',
+  // Transparency/Overlays (Efectos sutiles sobre fondo blanco)
+  secondaryLight: 'rgba(30, 64, 175, 0.1)',
+  accentLight: 'rgba(30, 64, 175, 0.05)',
+  shadow: 'rgba(30, 64, 175, 0.1)',
 };
 
 export const SPACING = {
@@ -54,17 +54,17 @@ export const RADIUS = {
 
 export const SHADOWS = {
   light: {
-    shadowColor: '#FFFFFF',
+    shadowColor: '#1E40AF',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     elevation: 2,
   },
   medium: {
-    shadowColor: '#FFFFFF',
+    shadowColor: '#1E40AF',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
     elevation: 4,
   },
 };

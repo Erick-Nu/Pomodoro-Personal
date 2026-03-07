@@ -44,7 +44,7 @@ const ClockIcon = ({ size = 20, color = COLORS.textMuted }) => (
   </Svg>
 );
 
-const CalendarIcon = ({ size = 18, color = COLORS.accent }) => (
+const CalendarIcon = ({ size = 18, color = COLORS.secondary }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={color} strokeWidth={2} strokeLinecap="round"/>
   </Svg>
@@ -103,7 +103,7 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle="dark-content" />
         <ScrollView 
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -131,7 +131,7 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
                   onFocus={() => setFocusedInput('nombre')}
                   onBlur={() => setFocusedInput(null)}
                   placeholder="Ej: Estudiar TypeScript"
-                  placeholderTextColor="#555"
+                  placeholderTextColor={COLORS.textMuted}
                 />
               </View>
             </View>
@@ -149,7 +149,7 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
                   multiline
                   numberOfLines={4}
                   placeholder="Detalles adicionales..."
-                  placeholderTextColor="#555"
+                  placeholderTextColor={COLORS.textMuted}
                 />
               </View>
             </View>
@@ -167,6 +167,7 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
                     onBlur={() => setFocusedInput(null)}
                     keyboardType="numeric"
                     placeholder="0"
+                    placeholderTextColor={COLORS.textMuted}
                     maxLength={2}
                   />
                 </View>
@@ -189,29 +190,29 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.black },
+  container: { flex: 1, backgroundColor: COLORS.primary },
   scrollContent: { padding: SPACING.lg, paddingTop: 20 },
   dateCard: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.secondary, 
+    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
     padding: SPACING.md, borderRadius: RADIUS.md, marginBottom: SPACING.xl,
     borderWidth: 1, borderColor: COLORS.border
   },
   dateIconWrapper: { 
-    width: 40, height: 40, borderRadius: RADIUS.sm, backgroundColor: 'rgba(0,0,0,0.05)', 
+    width: 40, height: 40, borderRadius: RADIUS.sm, backgroundColor: COLORS.secondaryLight, 
     justifyContent: 'center', alignItems: 'center', marginRight: 12 
   },
-  dateLabel: { color: '#555', fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
-  dateValue: { color: COLORS.black, fontSize: 16, fontWeight: '700', textTransform: 'capitalize' },
+  dateLabel: { color: COLORS.textMuted, fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
+  dateValue: { color: COLORS.textMain, fontSize: 16, fontWeight: '700', textTransform: 'capitalize' },
   form: { flex: 1 },
   inputGroup: { marginBottom: SPACING.lg },
   label: { color: COLORS.textMain, fontSize: 14, fontWeight: '600', marginBottom: 8, marginLeft: 4 },
   labelActive: { color: COLORS.secondary },
   inputWrapper: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.secondary, 
+    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
     borderRadius: RADIUS.md, paddingHorizontal: 16, borderWidth: 1.5, borderColor: COLORS.border 
   },
   inputWrapperActive: { borderColor: COLORS.secondary },
-  input: { flex: 1, paddingVertical: 14, marginLeft: 12, color: COLORS.black, fontSize: 16, fontWeight: '500' },
+  input: { flex: 1, paddingVertical: 14, marginLeft: 12, color: COLORS.textMain, fontSize: 16, fontWeight: '500' },
   textAreaWrapper: { alignItems: 'flex-start', paddingTop: 14 },
   textArea: { textAlignVertical: 'top', height: 100 },
   timeRow: { flexDirection: 'row', alignItems: 'center' },
@@ -221,6 +222,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.secondary, paddingVertical: 18, borderRadius: RADIUS.md, 
     alignItems: 'center', marginTop: SPACING.lg 
   },
-  saveBtnDisabled: { backgroundColor: '#333', opacity: 0.5 },
-  saveBtnText: { color: COLORS.black, fontSize: 16, fontWeight: '700' }
+  saveBtnDisabled: { backgroundColor: COLORS.border, opacity: 0.5 },
+  saveBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '700' }
 });

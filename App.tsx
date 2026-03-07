@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -38,13 +39,13 @@ const MyTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: COLORS.black,
+    background: COLORS.primary,
     primary: COLORS.secondary,
   },
 };
 
 const commonStackOptions = {
-  headerStyle: { backgroundColor: COLORS.black },
+  headerStyle: { backgroundColor: COLORS.white },
   headerTintColor: COLORS.secondary,
   headerTitleStyle: { fontWeight: '700' as const, fontSize: 17 },
   headerShadowVisible: false,
@@ -87,9 +88,9 @@ function TabNavigator() {
         tabBarActiveTintColor: COLORS.secondary,
         tabBarInactiveTintColor: COLORS.textMuted,
         tabBarStyle: { 
-          backgroundColor: COLORS.black, 
+          backgroundColor: COLORS.white, 
           borderTopWidth: 1,
-          borderTopColor: 'rgba(234, 228, 213, 0.1)',
+          borderTopColor: COLORS.border,
           height: 60 + insets.bottom,
           paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
           paddingTop: 10,
@@ -111,6 +112,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar barStyle="dark-content" />
       <NavigationContainer theme={MyTheme}>
         <TabNavigator />
       </NavigationContainer>
