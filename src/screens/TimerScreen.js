@@ -11,6 +11,7 @@ import {
   StatusBar,
   Dimensions
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
@@ -18,11 +19,13 @@ import * as MediaLibrary from 'expo-media-library';
 import { useTimer } from '../hooks/useTimer'; 
 import { updateProgressTask } from '../database/db_queries_task';
 import { registerForPushNotificationsAsync, sendLocalNotification } from '../hooks/useNotifications';
+import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
+const TIMER_SIZE = Math.min(width - 80, 280);
 
 // Iconos SVG personalizados
-const MusicNoteIcon = ({ size = 24, color = '#fff' }) => (
+const MusicNoteIcon = ({ size = 24, color = COLORS.secondary }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M9 18V5l12-2v13" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
     <Circle cx="6" cy="18" r="3" stroke={color} strokeWidth={2}/>
@@ -30,49 +33,54 @@ const MusicNoteIcon = ({ size = 24, color = '#fff' }) => (
   </Svg>
 );
 
-const PlayIcon = ({ size = 24, color = '#fff' }) => (
+const PlayIcon = ({ size = 24, color = COLORS.white }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M5 3l14 9-14 9V3z" fill={color}/>
   </Svg>
 );
 
-const PauseIcon = ({ size = 24, color = '#fff' }) => (
+const PauseIcon = ({ size = 24, color = COLORS.white }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M6 4h4v16H6V4zM14 4h4v16h-4V4z" fill={color}/>
   </Svg>
 );
 
-const ListIcon = ({ size = 24, color = '#fff' }) => (
+const ListIcon = ({ size = 24, color = COLORS.textMuted }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke={color} strokeWidth={2} strokeLinecap="round"/>
   </Svg>
 );
 
-const CloseIcon = ({ size = 24, color = '#fff' }) => (
+const CloseIcon = ({ size = 24, color = COLORS.textMuted }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M18 6L6 18M6 6l12 12" stroke={color} strokeWidth={2} strokeLinecap="round"/>
   </Svg>
 );
 
-const SkipBackIcon = ({ size = 20, color = '#fff' }) => (
+const SkipBackIcon = ({ size = 20, color = COLORS.textMuted }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M19 20L9 12l10-8v16zM5 19V5" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
   </Svg>
 );
 
-const SkipForwardIcon = ({ size = 20, color = '#fff' }) => (
+const SkipForwardIcon = ({ size = 20, color = COLORS.textMuted }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M5 4l10 8-10 8V4zM19 5v14" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
   </Svg>
 );
 
-const CheckIcon = ({ size = 18, color = '#fff' }) => (
+const CheckIcon = ({ size = 18, color = COLORS.secondary }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M20 6L9 17l-5-5" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
   </Svg>
 );
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const TimerIcon = ({ size = 20, color = COLORS.secondary }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="13" r="8" stroke={color} strokeWidth={2}/>
+    <Path d="M12 9v4l2 2M10 2h4M12 2v2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
+  </Svg>
+);
 
 export default function TimerScreen({ route, navigation }) {
   const { tarea } = route.params;
@@ -90,13 +98,11 @@ export default function TimerScreen({ route, navigation }) {
   // Animaciones
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
-  const modalOpacity = useRef(new Animated.Value(0)).current;
-  const modalTranslate = useRef(new Animated.Value(300)).current;
 
   // Configuración del círculo de progreso
   const totalSeconds = modo * 60;
-  const radius = 130;
-  const strokeWidth = 12;
+  const radius = (TIMER_SIZE - 24) / 2;
+  const strokeWidth = 10;
   const circumference = 2 * Math.PI * radius;
   const progress = seconds / totalSeconds;
 
@@ -264,35 +270,11 @@ export default function TimerScreen({ route, navigation }) {
   // Abrir modal
   const openModal = () => {
     setShowMusicModal(true);
-    Animated.parallel([
-      Animated.timing(modalOpacity, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.spring(modalTranslate, {
-        toValue: 0,
-        tension: 65,
-        friction: 10,
-        useNativeDriver: true,
-      }),
-    ]).start();
   };
 
   // Cerrar modal
   const closeModal = () => {
-    Animated.parallel([
-      Animated.timing(modalOpacity, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(modalTranslate, {
-        toValue: 300,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => setShowMusicModal(false));
+    setShowMusicModal(false);
   };
 
   const handleTimerComplete = async () => {
@@ -349,486 +331,458 @@ export default function TimerScreen({ route, navigation }) {
 
   const formatSongName = (filename) => {
     if (!filename) return 'Desconocido';
-    // Quitar extensión y limpiar nombre
-    return filename.replace(/\.[^/.]+$/, "").substring(0, 30);
+    return filename.replace(/\.[^/.]+$/, "").substring(0, 28);
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f0f23']}
-        style={styles.gradient}
-      >
-        {/* Card de Música */}
-        <View style={styles.musicCard}>
-          <LinearGradient
-            colors={['rgba(74, 222, 128, 0.1)', 'rgba(34, 197, 94, 0.05)']}
-            style={styles.musicCardGradient}
-          >
-            <View style={styles.musicInfo}>
-              <View style={[styles.musicIconWrapper, isPlaying && styles.musicIconPlaying]}>
-                <MusicNoteIcon size={22} color={isPlaying ? '#4ade80' : '#94a3b8'} />
-              </View>
-              <View style={styles.musicTextContainer}>
-                <Text style={styles.musicLabel}>Reproduciendo</Text>
-                <Text style={styles.musicTitle} numberOfLines={1}>
-                  {cancionSeleccionada ? formatSongName(cancionSeleccionada.filename) : "Sin música seleccionada"}
-                </Text>
-              </View>
-            </View>
-            
-            <View style={styles.musicControls}>
-              <TouchableOpacity onPress={anteriorCancion} style={styles.skipBtn} activeOpacity={0.7}>
-                <SkipBackIcon color="#94a3b8" />
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                onPress={playPauseMusic} 
-                style={[styles.playBtn, isPlaying && styles.playBtnActive]}
-                activeOpacity={0.8}
-                disabled={isLoadingMusic}
-              >
-                <LinearGradient
-                  colors={isPlaying ? ['#22c55e', '#16a34a'] : ['#475569', '#334155']}
-                  style={styles.playBtnGradient}
-                >
-                  {isPlaying ? (
-                    <PauseIcon size={20} color="#fff" />
-                  ) : (
-                    <View style={{ paddingLeft: 2 }}>
-                      <PlayIcon size={20} color="#fff" />
-                    </View>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
-              
-              <TouchableOpacity onPress={siguienteCancion} style={styles.skipBtn} activeOpacity={0.7}>
-                <SkipForwardIcon color="#94a3b8" />
-              </TouchableOpacity>
-              
-              <TouchableOpacity onPress={openModal} style={styles.listBtn} activeOpacity={0.7}>
-                <ListIcon size={22} color="#94a3b8" />
-              </TouchableOpacity>
-            </View>
-          </LinearGradient>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      
+      <View style={styles.content}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerIcon}>
+            <TimerIcon size={22} color={COLORS.secondary} />
+          </View>
+          <View>
+            <Text style={styles.headerTitle}>Enfoque</Text>
+            <Text style={styles.headerSubtitle} numberOfLines={1}>{tarea.nombre}</Text>
+          </View>
         </View>
 
         {/* Timer circular */}
-        <Animated.View style={[styles.timerContainer, { transform: [{ scale: pulseAnim }] }]}>
-          <Svg width={radius * 2 + strokeWidth * 2} height={radius * 2 + strokeWidth * 2}>
-            {/* Círculo de fondo */}
-            <Circle
-              cx={radius + strokeWidth}
-              cy={radius + strokeWidth}
-              r={radius}
-              stroke="rgba(71, 85, 105, 0.3)"
-              strokeWidth={strokeWidth}
-              fill="transparent"
-            />
-            {/* Círculo de progreso */}
-            <Circle
-              cx={radius + strokeWidth}
-              cy={radius + strokeWidth}
-              r={radius}
-              stroke={isActive ? "#4ade80" : "#22c55e"}
-              strokeWidth={strokeWidth}
-              fill="transparent"
-              strokeDasharray={circumference}
-              strokeDashoffset={circumference * (1 - progress)}
-              strokeLinecap="round"
-              transform={`rotate(-90 ${radius + strokeWidth} ${radius + strokeWidth})`}
-            />
-            {/* Círculo interior decorativo */}
-            <Circle
-              cx={radius + strokeWidth}
-              cy={radius + strokeWidth}
-              r={radius - 20}
-              stroke="rgba(74, 222, 128, 0.1)"
-              strokeWidth={1}
-              fill="transparent"
-            />
-          </Svg>
-          
-          <View style={styles.timeOverlay}>
-            <Text style={[styles.timeText, isActive && styles.timeTextActive]}>
-              {formatTime()}
-            </Text>
-            <Text style={styles.taskLabel} numberOfLines={1}>{tarea.nombre}</Text>
-            <View style={styles.modeIndicator}>
-              <Text style={styles.modeIndicatorText}>
-                {modo} min • {Math.ceil(modo / 25)} pomodoros
-              </Text>
-            </View>
+        <View style={styles.timerWrapper}>
+          <View style={styles.timerCard}>
+            <Animated.View style={[styles.timerContainer, { transform: [{ scale: pulseAnim }] }]}>
+              <Svg width={TIMER_SIZE} height={TIMER_SIZE}>
+                {/* Círculo de fondo */}
+                <Circle
+                  cx={TIMER_SIZE / 2}
+                  cy={TIMER_SIZE / 2}
+                  r={radius}
+                  stroke={COLORS.border}
+                  strokeWidth={strokeWidth}
+                  fill="transparent"
+                />
+                {/* Círculo de progreso */}
+                <Circle
+                  cx={TIMER_SIZE / 2}
+                  cy={TIMER_SIZE / 2}
+                  r={radius}
+                  stroke={isActive ? COLORS.secondary : COLORS.secondary}
+                  strokeWidth={strokeWidth}
+                  fill="transparent"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={circumference * (1 - progress)}
+                  strokeLinecap="round"
+                  transform={`rotate(-90 ${TIMER_SIZE / 2} ${TIMER_SIZE / 2})`}
+                />
+              </Svg>
+              
+              <View style={styles.timeOverlay}>
+                <Text style={[styles.timeText, isActive && styles.timeTextActive]}>
+                  {formatTime()}
+                </Text>
+                <View style={styles.pomodoroInfo}>
+                  <Text style={styles.pomodoroText}>
+                    {modo} min · {Math.ceil(modo / 25)} pomodoros
+                  </Text>
+                </View>
+              </View>
+            </Animated.View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Selectores de modo */}
         <View style={styles.modeSection}>
-          <Text style={styles.modeSectionTitle}>Duración del enfoque</Text>
+          <Text style={styles.sectionTitle}>Duración</Text>
           <View style={styles.modeRow}>
             {[25, 30, 45, 60].map((m) => (
               <TouchableOpacity 
                 key={m}
-                style={[styles.modeBtn, modo === m && styles.activeMode]} 
+                style={[styles.modeBtn, modo === m && styles.modeBtnActive]} 
                 onPress={() => handleModeChange(m)}
                 activeOpacity={0.7}
               >
-                {modo === m ? (
-                  <LinearGradient
-                    colors={['#22c55e', '#16a34a']}
-                    style={styles.modeBtnGradient}
-                  >
-                    <Text style={[styles.modeText, styles.modeTextActive]}>{m}</Text>
-                    <Text style={[styles.modeUnit, styles.modeUnitActive]}>min</Text>
-                  </LinearGradient>
-                ) : (
-                  <View style={styles.modeBtnInner}>
-                    <Text style={styles.modeText}>{m}</Text>
-                    <Text style={styles.modeUnit}>min</Text>
-                  </View>
-                )}
+                <Text style={[styles.modeText, modo === m && styles.modeTextActive]}>{m}</Text>
+                <Text style={[styles.modeUnit, modo === m && styles.modeUnitActive]}>min</Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
-        {/* Botón principal */}
-        <Animated.View style={[styles.mainBtnContainer, { transform: [{ scale: buttonScale }] }]}>
-          <TouchableOpacity 
-            style={styles.mainBtn}
-            onPress={handleToggle}
-            activeOpacity={0.9}
-          >
-            <LinearGradient
-              colors={isActive ? ['#ef4444', '#dc2626'] : ['#22c55e', '#16a34a']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.mainBtnGradient}
-            >
-              {isActive ? (
-                <PauseIcon size={24} color="#fff" />
-              ) : (
-                <View style={{ paddingLeft: 3 }}>
-                  <PlayIcon size={24} color="#fff" />
-                </View>
-              )}
-              <Text style={styles.mainBtnText}>
-                {isActive ? 'PAUSAR' : 'COMENZAR'}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Modal de selección de canciones */}
-        <Modal visible={showMusicModal} animationType="none" transparent>
-          <View style={styles.modalOverlay}>
-            <TouchableOpacity 
-              style={styles.modalBackdrop} 
-              activeOpacity={1} 
-              onPress={closeModal}
-            />
-            <Animated.View 
-              style={[
-                styles.modalContent,
-                {
-                  opacity: modalOpacity,
-                  transform: [{ translateY: modalTranslate }]
-                }
-              ]}
-            >
-              <View style={styles.modalHandle} />
-              
-              <View style={styles.modalHeader}>
-                <View style={styles.modalTitleContainer}>
-                  <View style={styles.modalIconWrapper}>
-                    <MusicNoteIcon size={22} color="#4ade80" />
-                  </View>
-                  <View>
-                    <Text style={styles.modalTitle}>Tu Biblioteca</Text>
-                    <Text style={styles.modalSubtitle}>{canciones.length} canciones</Text>
-                  </View>
-                </View>
-                <TouchableOpacity onPress={closeModal} style={styles.closeBtn} activeOpacity={0.7}>
-                  <CloseIcon size={22} color="#94a3b8" />
-                </TouchableOpacity>
+        {/* Card de Música */}
+        <View style={[styles.musicCard, SHADOWS.light]}>
+          <View style={styles.musicHeader}>
+            <View style={styles.musicInfo}>
+              <View style={[styles.musicIcon, isPlaying && styles.musicIconActive]}>
+                <MusicNoteIcon size={20} color={isPlaying ? COLORS.secondary : COLORS.textMuted} />
               </View>
-
-              {canciones.length > 0 ? (
-                <FlatList
-                  data={canciones}
-                  keyExtractor={(item) => item.id}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.songList}
-                  renderItem={({ item }) => {
-                    const isSelected = cancionSeleccionada?.id === item.id;
-                    return (
-                      <TouchableOpacity 
-                        style={[styles.songItem, isSelected && styles.songItemSelected]}
-                        onPress={() => cambiarCancion(item)}
-                        activeOpacity={0.7}
-                      >
-                        <View style={[styles.songIconWrapper, isSelected && styles.songIconSelected]}>
-                          <MusicNoteIcon size={18} color={isSelected ? '#4ade80' : '#64748b'} />
-                        </View>
-                        <Text 
-                          style={[styles.songName, isSelected && styles.songNameSelected]} 
-                          numberOfLines={1}
-                        >
-                          {formatSongName(item.filename)}
-                        </Text>
-                        {isSelected && (
-                          <View style={styles.selectedBadge}>
-                            <CheckIcon size={16} color="#4ade80" />
-                          </View>
-                        )}
-                      </TouchableOpacity>
-                    );
-                  }}
-                />
-              ) : (
-                <View style={styles.emptyMusic}>
-                  <MusicNoteIcon size={48} color="#374151" />
-                  <Text style={styles.emptyMusicTitle}>Sin música</Text>
-                  <Text style={styles.emptyMusicText}>
-                    No se encontraron archivos de audio en tu dispositivo
-                  </Text>
-                </View>
-              )}
-            </Animated.View>
+              <View style={styles.musicText}>
+                <Text style={styles.musicLabel}>Reproduciendo</Text>
+                <Text style={styles.musicTitle} numberOfLines={1}>
+                  {cancionSeleccionada ? formatSongName(cancionSeleccionada.filename) : "Sin selección"}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity onPress={openModal} style={styles.listBtn} activeOpacity={0.7}>
+              <ListIcon size={20} />
+            </TouchableOpacity>
           </View>
-        </Modal>
-      </LinearGradient>
-    </View>
+          
+          <View style={styles.musicControls}>
+            <TouchableOpacity onPress={anteriorCancion} style={styles.controlBtn} activeOpacity={0.7}>
+              <SkipBackIcon size={22} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              onPress={playPauseMusic} 
+              style={styles.playPauseBtn}
+              activeOpacity={0.8}
+              disabled={isLoadingMusic}
+            >
+              <LinearGradient
+                colors={isPlaying ? COLORS.gradientPrimary : [COLORS.border, COLORS.card]}
+                style={styles.playPauseBtnGradient}
+              >
+                {isPlaying ? (
+                  <PauseIcon size={22} />
+                ) : (
+                  <View style={{ paddingLeft: 2 }}>
+                    <PlayIcon size={22} />
+                  </View>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity onPress={siguienteCancion} style={styles.controlBtn} activeOpacity={0.7}>
+              <SkipForwardIcon size={22} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Botón principal */}
+        <View style={styles.actionSection}>
+          <Animated.View style={{ transform: [{ scale: buttonScale }], width: '100%' }}>
+            <TouchableOpacity 
+              style={styles.mainBtn}
+              onPress={handleToggle}
+              activeOpacity={0.9}
+            >
+              <LinearGradient
+                colors={isActive ? [COLORS.error, '#DC2626'] : COLORS.gradientPrimary}
+                style={styles.mainBtnGradient}
+              >
+                {isActive ? <PauseIcon size={24} /> : <PlayIcon size={24} />}
+                <Text style={styles.mainBtnText}>
+                  {isActive ? 'PAUSAR' : 'COMENZAR'}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </View>
+
+      {/* Modal de selección de canciones */}
+      <Modal visible={showMusicModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackdrop} 
+            activeOpacity={1} 
+            onPress={closeModal}
+          />
+          <View style={styles.modalContent}>
+            <View style={styles.modalHandle} />
+            
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleRow}>
+                <View style={styles.modalIconWrapper}>
+                  <MusicNoteIcon size={22} color={COLORS.secondary} />
+                </View>
+                <View>
+                  <Text style={styles.modalTitle}>Biblioteca</Text>
+                  <Text style={styles.modalSubtitle}>{canciones.length} canciones</Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={closeModal} style={styles.closeBtn} activeOpacity={0.7}>
+                <CloseIcon size={22} />
+              </TouchableOpacity>
+            </View>
+
+            {canciones.length > 0 ? (
+              <FlatList
+                data={canciones}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.songList}
+                renderItem={({ item }) => {
+                  const isSelected = cancionSeleccionada?.id === item.id;
+                  return (
+                    <TouchableOpacity 
+                      style={[styles.songItem, isSelected && styles.songItemSelected]}
+                      onPress={() => cambiarCancion(item)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.songIcon, isSelected && styles.songIconSelected]}>
+                        <MusicNoteIcon size={18} color={isSelected ? COLORS.secondary : COLORS.textMuted} />
+                      </View>
+                      <Text 
+                        style={[styles.songName, isSelected && styles.songNameSelected]} 
+                        numberOfLines={1}
+                      >
+                        {formatSongName(item.filename)}
+                      </Text>
+                      {isSelected && (
+                        <View style={styles.checkBadge}>
+                          <CheckIcon size={16} />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            ) : (
+              <View style={styles.emptyState}>
+                <MusicNoteIcon size={48} color={COLORS.border} />
+                <Text style={styles.emptyTitle}>Sin música</Text>
+                <Text style={styles.emptyText}>
+                  No se encontraron archivos de audio
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { 
-    flex: 1 
-  },
-  gradient: { 
     flex: 1,
-    alignItems: 'center',
-    paddingTop: 50,
-    paddingHorizontal: 20,
+    backgroundColor: COLORS.primary,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: SPACING.lg,
   },
 
-  // Music Card
-  musicCard: { 
-    width: '100%',
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 30,
-    borderWidth: 1,
-    borderColor: 'rgba(74, 222, 128, 0.2)',
-  },
-  musicCardGradient: {
-    padding: 16,
+  // Header
+  header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: SPACING.md,
+    marginBottom: SPACING.sm,
   },
-  musicInfo: { 
-    flex: 1, 
-    flexDirection: 'row', 
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  musicIconWrapper: {
+  headerIcon: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    backgroundColor: 'rgba(100, 116, 139, 0.2)',
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.card,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: SPACING.md,
   },
-  musicIconPlaying: {
-    backgroundColor: 'rgba(74, 222, 128, 0.2)',
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.textMain,
   },
-  musicTextContainer: {
-    flex: 1,
-  },
-  musicLabel: {
-    color: '#64748b',
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  musicTitle: { 
-    color: '#f1f5f9', 
-    fontSize: 15, 
-    fontWeight: '600',
-  },
-  musicControls: { 
-    flexDirection: 'row', 
-    alignItems: 'center',
-    gap: 8,
-  },
-  skipBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: 'rgba(100, 116, 139, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playBtn: {
-    borderRadius: 14,
-    overflow: 'hidden',
-  },
-  playBtnActive: {
-    shadowColor: '#22c55e',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  playBtnGradient: {
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  listBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: 'rgba(100, 116, 139, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 4,
+  headerSubtitle: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+    marginTop: 2,
+    maxWidth: 200,
   },
 
   // Timer
+  timerWrapper: {
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  timerCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    ...SHADOWS.medium,
+  },
   timerContainer: { 
     justifyContent: 'center', 
     alignItems: 'center',
-    marginBottom: 30,
   },
   timeOverlay: { 
     position: 'absolute', 
     alignItems: 'center',
+    justifyContent: 'center',
   },
   timeText: { 
-    color: '#e2e8f0', 
-    fontSize: 56, 
+    color: COLORS.textMain, 
+    fontSize: 52, 
     fontWeight: '200',
     fontVariant: ['tabular-nums'],
   },
   timeTextActive: {
-    color: '#4ade80',
+    color: COLORS.secondary,
   },
-  taskLabel: { 
-    color: '#94a3b8', 
-    fontSize: 15, 
-    marginTop: 8,
-    fontWeight: '500',
-    maxWidth: 200,
-    textAlign: 'center',
-  },
-  modeIndicator: {
-    marginTop: 12,
-    backgroundColor: 'rgba(74, 222, 128, 0.1)',
+  pomodoroInfo: {
+    marginTop: SPACING.sm,
+    backgroundColor: `${COLORS.secondary}15`,
     paddingVertical: 6,
     paddingHorizontal: 14,
-    borderRadius: 20,
+    borderRadius: RADIUS.full,
   },
-  modeIndicatorText: {
-    color: '#4ade80',
+  pomodoroText: {
+    color: COLORS.secondary,
     fontSize: 13,
     fontWeight: '600',
   },
 
   // Mode Selection
   modeSection: {
-    width: '100%',
-    marginBottom: 30,
+    marginBottom: SPACING.lg,
   },
-  modeSectionTitle: {
-    color: '#64748b',
-    fontSize: 13,
+  sectionTitle: {
+    fontSize: 14,
     fontWeight: '600',
+    color: COLORS.textMuted,
+    marginBottom: SPACING.md,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    textAlign: 'center',
-    marginBottom: 16,
   },
   modeRow: { 
     flexDirection: 'row', 
-    justifyContent: 'center',
-    gap: 12,
+    gap: SPACING.sm,
   },
   modeBtn: { 
-    borderRadius: 14,
-    overflow: 'hidden',
+    flex: 1,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: 'rgba(71, 85, 105, 0.3)',
+    borderColor: COLORS.border,
   },
-  modeBtnInner: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    backgroundColor: 'rgba(30, 41, 59, 0.6)',
-  },
-  modeBtnGradient: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  activeMode: { 
-    borderColor: '#22c55e',
-    shadowColor: '#22c55e',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
+  modeBtnActive: { 
+    backgroundColor: COLORS.secondary,
+    borderColor: COLORS.secondary,
   },
   modeText: { 
-    color: '#94a3b8', 
+    color: COLORS.textMuted, 
     fontWeight: '700',
-    fontSize: 20,
+    fontSize: 18,
   },
   modeTextActive: {
-    color: '#fff',
+    color: COLORS.white,
   },
   modeUnit: {
-    color: '#64748b',
+    color: COLORS.textMuted,
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
     marginTop: 2,
   },
   modeUnitActive: {
     color: 'rgba(255, 255, 255, 0.8)',
   },
 
-  // Main Button
-  mainBtnContainer: {
-    width: '100%',
-    paddingHorizontal: 20,
+  // Music Card
+  musicCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.lg,
+  },
+  musicHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.md,
+  },
+  musicInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  musicIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.md,
+  },
+  musicIconActive: {
+    backgroundColor: `${COLORS.secondary}20`,
+  },
+  musicText: {
+    flex: 1,
+  },
+  musicLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  musicTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textMain,
+    marginTop: 2,
+  },
+  listBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  musicControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.md,
+  },
+  controlBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playPauseBtn: {
+    borderRadius: RADIUS.md,
+    overflow: 'hidden',
+  },
+  playPauseBtnGradient: {
+    width: 56,
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Action Section
+  actionSection: {
+    marginTop: 'auto',
+    paddingBottom: SPACING.xl,
   },
   mainBtn: { 
-    borderRadius: 20,
+    borderRadius: RADIUS.lg,
     overflow: 'hidden',
-    shadowColor: '#22c55e',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 10,
+    ...SHADOWS.medium,
   },
   mainBtnGradient: {
     flexDirection: 'row',
-    paddingVertical: 20,
+    paddingVertical: SPACING.lg,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
+    gap: SPACING.md,
   },
   mainBtnText: { 
-    color: 'white', 
-    fontSize: 18, 
+    color: COLORS.white, 
+    fontSize: 16, 
     fontWeight: '700',
     letterSpacing: 1,
   },
@@ -840,128 +794,124 @@ const styles = StyleSheet.create({
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: COLORS.overlay,
   },
   modalContent: { 
-    backgroundColor: '#1e293b',
+    backgroundColor: COLORS.card,
     maxHeight: '60%',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingTop: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(71, 85, 105, 0.3)',
-    borderBottomWidth: 0,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    paddingTop: SPACING.sm,
   },
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(148, 163, 184, 0.3)',
+    backgroundColor: COLORS.border,
     borderRadius: 2,
     alignSelf: 'center',
-    marginBottom: 16,
+    marginBottom: SPACING.md,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingBottom: 16,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(71, 85, 105, 0.3)',
+    borderBottomColor: COLORS.border,
   },
-  modalTitleContainer: {
+  modalTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   modalIconWrapper: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    backgroundColor: 'rgba(74, 222, 128, 0.15)',
+    borderRadius: RADIUS.md,
+    backgroundColor: `${COLORS.secondary}15`,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: SPACING.md,
   },
   modalTitle: { 
-    color: '#f1f5f9', 
+    color: COLORS.textMain, 
     fontSize: 18, 
     fontWeight: '700',
   },
   modalSubtitle: {
-    color: '#64748b',
+    color: COLORS.textMuted,
     fontSize: 13,
     marginTop: 2,
   },
   closeBtn: {
     width: 40,
     height: 40,
-    borderRadius: 12,
-    backgroundColor: 'rgba(100, 116, 139, 0.15)',
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   songList: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingBottom: 34,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    paddingBottom: SPACING.xxl,
   },
   songItem: { 
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 14,
-    marginBottom: 6,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.xs,
   },
   songItemSelected: {
-    backgroundColor: 'rgba(74, 222, 128, 0.1)',
+    backgroundColor: `${COLORS.secondary}15`,
   },
-  songIconWrapper: {
+  songIcon: {
     width: 40,
     height: 40,
-    borderRadius: 10,
-    backgroundColor: 'rgba(100, 116, 139, 0.15)',
+    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 14,
+    marginRight: SPACING.md,
   },
   songIconSelected: {
-    backgroundColor: 'rgba(74, 222, 128, 0.2)',
+    backgroundColor: `${COLORS.secondary}20`,
   },
   songName: { 
-    color: '#cbd5e1',
+    color: COLORS.textMuted,
     fontSize: 15,
     fontWeight: '500',
     flex: 1,
   },
   songNameSelected: {
-    color: '#4ade80',
+    color: COLORS.secondary,
     fontWeight: '600',
   },
-  selectedBadge: {
+  checkBadge: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(74, 222, 128, 0.2)',
+    backgroundColor: `${COLORS.secondary}20`,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emptyMusic: {
+  emptyState: {
     alignItems: 'center',
-    paddingVertical: 50,
-    paddingHorizontal: 40,
+    paddingVertical: SPACING.xxl,
+    paddingHorizontal: SPACING.xl,
   },
-  emptyMusicTitle: {
-    color: '#e2e8f0',
+  emptyTitle: {
+    color: COLORS.textMain,
     fontSize: 17,
     fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.xs,
   },
-  emptyMusicText: {
-    color: '#64748b',
+  emptyText: {
+    color: COLORS.textMuted,
     fontSize: 14,
     textAlign: 'center',
-    lineHeight: 20,
   },
 });
