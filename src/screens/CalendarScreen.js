@@ -6,15 +6,13 @@ import {
   FlatList, 
   TouchableOpacity, 
   Animated,
-  Dimensions,
   StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { getTasksByDate } from '../database/db_queries_task';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../styles/theme';
-
-const { width } = Dimensions.get('window');
 
 // Configuración de idioma español
 LocaleConfig.locales['es'] = {
@@ -40,10 +38,23 @@ const ChevronRightIcon = ({ size = 20, color = COLORS.textMuted }) => (
   </Svg>
 );
 
-const EmptyIcon = ({ size = 64, color = COLORS.border }) => (
+const ClockIcon = ({ size = 14, color = COLORS.textMuted }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="9" stroke={color} strokeWidth={2}/>
+    <Path d="M12 6v6l4 2" stroke={color} strokeWidth={2} strokeLinecap="round"/>
+  </Svg>
+);
+
+const CalendarEmptyIcon = ({ size = 56, color = COLORS.textMuted }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={color} strokeWidth={1.5} strokeLinecap="round"/>
     <Path d="M12 14v.01M12 17v.01" stroke={color} strokeWidth={2} strokeLinecap="round"/>
+  </Svg>
+);
+
+const PlusIcon = ({ size = 16, color = COLORS.white }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M12 5v14M5 12h14" stroke={color} strokeWidth={2.5} strokeLinecap="round"/>
   </Svg>
 );
 
@@ -55,9 +66,10 @@ export default function CalendarScreen({ navigation }) {
   const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
+    listOpacity.setValue(0);
     const tareas = getTasksByDate(selectedDate);
     setTareasDelDia(tareas);
-    Animated.timing(listOpacity, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    Animated.timing(listOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
   }, [selectedDate]);
 
   const formatDateHeader = (dateString) => {
@@ -70,21 +82,25 @@ export default function CalendarScreen({ navigation }) {
     <TouchableOpacity 
       style={[styles.taskCard, SHADOWS.light]}
       onPress={() => navigation.navigate('TaskDetail', { tarea: item })}
+      activeOpacity={0.7}
     >
       <View style={styles.taskIconWrapper}>
         <TaskIcon />
       </View>
       <View style={styles.taskInfo}>
         <Text style={styles.taskName} numberOfLines={1}>{item.nombre}</Text>
-        <Text style={styles.taskTime}>{(item.tiempo_registrado / 60).toFixed(1)}h programadas</Text>
+        <View style={styles.taskTimeRow}>
+          <ClockIcon />
+          <Text style={styles.taskTime}>{(item.tiempo_registrado / 60).toFixed(1)}h programadas</Text>
+        </View>
       </View>
       <ChevronRightIcon />
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       
       {/* Calendario Section */}
       <View style={styles.calendarWrapper}>
@@ -106,7 +122,17 @@ export default function CalendarScreen({ navigation }) {
             dotColor: COLORS.secondary,
             monthTextColor: COLORS.textMain,
             textMonthFontWeight: '700',
+            textMonthFontSize: 18,
             arrowColor: COLORS.secondary,
+            'stylesheet.calendar.header': {
+              header: {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingHorizontal: 10,
+                paddingVertical: 10,
+              }
+            }
           }}
         />
       </View>
@@ -114,8 +140,16 @@ export default function CalendarScreen({ navigation }) {
       {/* Lista de Tareas */}
       <View style={styles.taskListContainer}>
         <View style={styles.listHeader}>
-          <Text style={styles.dateTitle}>{formatDateHeader(selectedDate)}</Text>
-          <Text style={styles.taskCount}>{tareasDelDia.length} tareas</Text>
+          <View>
+            <Text style={styles.dateTitle}>{formatDateHeader(selectedDate)}</Text>
+            <Text style={styles.taskCount}>{tareasDelDia.length} {tareasDelDia.length === 1 ? 'tarea' : 'tareas'}</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.addTaskHeaderBtn}
+            onPress={() => navigation.navigate('AddTask', { initialDate: selectedDate })}
+          >
+            <PlusIcon size={18} />
+          </TouchableOpacity>
         </View>
         
         <Animated.View style={{ flex: 1, opacity: listOpacity }}>
@@ -129,49 +163,143 @@ export default function CalendarScreen({ navigation }) {
             />
           ) : (
             <View style={styles.emptyContainer}>
-              <EmptyIcon />
-              <Text style={styles.emptyTitle}>Sin tareas para este día</Text>
+              <View style={styles.emptyIconWrapper}>
+                <CalendarEmptyIcon />
+              </View>
+              <Text style={styles.emptyTitle}>Sin tareas programadas</Text>
+              <Text style={styles.emptySubtitle}>Agrega una tarea para este día</Text>
               <TouchableOpacity 
                 style={styles.addTaskBtn}
                 onPress={() => navigation.navigate('AddTask', { initialDate: selectedDate })}
               >
-                <Text style={styles.addTaskBtnText}>+ Agregar Tarea</Text>
+                <PlusIcon size={16} />
+                <Text style={styles.addTaskBtnText}>Nueva Tarea</Text>
               </TouchableOpacity>
             </View>
           )}
         </Animated.View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.primary },
-  calendarWrapper: { 
-    backgroundColor: COLORS.primary, paddingBottom: 10, 
-    borderBottomWidth: 1, borderBottomColor: COLORS.border 
+  container: { 
+    flex: 1, 
+    backgroundColor: COLORS.primary 
   },
-  taskListContainer: { flex: 1, padding: SPACING.lg },
-  listHeader: { marginBottom: 20 },
-  dateTitle: { color: COLORS.textMain, fontSize: 20, fontWeight: '700', textTransform: 'capitalize' },
-  taskCount: { color: COLORS.textMuted, fontSize: 14, marginTop: 4 },
+  calendarWrapper: { 
+    backgroundColor: COLORS.primary, 
+    paddingBottom: SPACING.sm,
+    borderBottomWidth: 1, 
+    borderBottomColor: COLORS.border 
+  },
+  taskListContainer: { 
+    flex: 1, 
+    padding: SPACING.lg,
+    backgroundColor: COLORS.primary,
+  },
+  listHeader: { 
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.lg 
+  },
+  dateTitle: { 
+    color: COLORS.textMain, 
+    fontSize: 20, 
+    fontWeight: '700', 
+    textTransform: 'capitalize' 
+  },
+  taskCount: { 
+    color: COLORS.textMuted, 
+    fontSize: 13, 
+    marginTop: 2 
+  },
+  addTaskHeaderBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   
   listContainer: { paddingBottom: 20 },
   taskCard: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, 
-    padding: 16, borderRadius: RADIUS.md, marginBottom: 12,
-    borderWidth: 1, borderColor: COLORS.border
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    padding: SPACING.md, 
+    borderRadius: RADIUS.md, 
+    marginBottom: SPACING.sm,
+    borderWidth: 1, 
+    borderColor: COLORS.border
   },
   taskIconWrapper: { 
-    width: 40, height: 40, borderRadius: RADIUS.sm, backgroundColor: COLORS.primary, 
-    justifyContent: 'center', alignItems: 'center', marginRight: 12 
+    width: 44, 
+    height: 44, 
+    borderRadius: RADIUS.md, 
+    backgroundColor: COLORS.primary, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: SPACING.sm 
   },
   taskInfo: { flex: 1 },
-  taskName: { color: COLORS.textMain, fontSize: 16, fontWeight: '600' },
-  taskTime: { color: COLORS.textMuted, fontSize: 12, marginTop: 2 },
+  taskName: { 
+    color: COLORS.textMain, 
+    fontSize: 16, 
+    fontWeight: '600' 
+  },
+  taskTimeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 4,
+  },
+  taskTime: { 
+    color: COLORS.textMuted, 
+    fontSize: 13 
+  },
 
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 40 },
-  emptyTitle: { color: COLORS.textMuted, fontSize: 16, marginTop: 15, marginBottom: 20 },
-  addTaskBtn: { backgroundColor: COLORS.secondary, paddingVertical: 12, paddingHorizontal: 24, borderRadius: RADIUS.md },
-  addTaskBtnText: { color: COLORS.white, fontWeight: '700' }
+  emptyContainer: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    paddingBottom: 60 
+  },
+  emptyIconWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  emptyTitle: { 
+    color: COLORS.textMain, 
+    fontSize: 18, 
+    fontWeight: '600',
+    marginBottom: 4 
+  },
+  emptySubtitle: {
+    color: COLORS.textMuted,
+    fontSize: 14,
+    marginBottom: SPACING.lg,
+  },
+  addTaskBtn: { 
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: COLORS.secondary, 
+    paddingVertical: 14, 
+    paddingHorizontal: 24, 
+    borderRadius: RADIUS.md 
+  },
+  addTaskBtnText: { 
+    color: COLORS.white, 
+    fontWeight: '700',
+    fontSize: 15,
+  }
 });
