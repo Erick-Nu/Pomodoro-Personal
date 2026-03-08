@@ -14,6 +14,7 @@ import {
   Dimensions
 } from 'react-native';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { createTask } from '../database/db_queries_task';
@@ -28,6 +29,7 @@ interface AddTaskScreenProps {
 }
 
 export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps) {
+  const insets = useSafeAreaInsets();
   const { initialDate } = route.params || { initialDate: new Date().toISOString().split('T')[0] };
 
   const [nombre, setNombre] = useState<string>('');
@@ -88,7 +90,21 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="light-content" />
+        
+        {/* Gradient Header */}
+        <LinearGradient
+          colors={[COLORS.secondary, '#1D4ED8']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[styles.navBar, { paddingTop: insets.top + 6 }]}
+        >
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={22} color={COLORS.white} />
+          </TouchableOpacity>
+          <Text style={styles.navTitle}>Nueva Tarea</Text>
+          <View style={{ width: 40 }} />
+        </LinearGradient>
         
         <ScrollView 
           showsVerticalScrollIndicator={false}
@@ -211,6 +227,9 @@ export default function AddTaskScreen({ navigation, route }: AddTaskScreenProps)
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.white },
+  navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 10 },
+  backBtn: { padding: 6 },
+  navTitle: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
   scrollContent: { padding: SPACING.lg, paddingTop: 20 },
   
   infoSection: { marginBottom: 35 },

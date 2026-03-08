@@ -11,7 +11,10 @@ import {
   KeyboardAvoidingView,
   StatusBar
 } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, NavigationProp, useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg';
 import { getTasksByDate } from '../database/db_queries_task';
 import { getNotesByTaskId, createNote } from '../database/db_queries_note';
@@ -52,6 +55,8 @@ const CloseIcon = ({ size = 24, color = COLORS.textMain }) => (
 );
 
 export default function DayDetailScreen({ route }: DayDetailScreenProps) {
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const { date } = route.params;
   const [tareasConNotas, setTareasConNotas] = useState<TareaConNotas[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -133,7 +138,21 @@ export default function DayDetailScreen({ route }: DayDetailScreenProps) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
+      
+      {/* Gradient Header */}
+      <LinearGradient
+        colors={[COLORS.secondary, '#1D4ED8']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.navBar, { paddingTop: insets.top + 6 }]}
+      >
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Ionicons name="chevron-back" size={22} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={styles.navTitle}>Historial</Text>
+        <View style={{ width: 40 }} />
+      </LinearGradient>
       
       <View style={[styles.summaryCard, SHADOWS.medium]}>
         <View style={styles.summaryTop}>
@@ -200,6 +219,9 @@ export default function DayDetailScreen({ route }: DayDetailScreenProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.primary },
+  navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 10 },
+  backBtn: { padding: 6 },
+  navTitle: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
   summaryCard: { backgroundColor: COLORS.secondary, margin: SPACING.lg, borderRadius: RADIUS.lg, padding: 20, borderWidth: 1, borderColor: COLORS.border },
   summaryTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
   calendarIconBg: { width: 44, height: 44, borderRadius: RADIUS.sm, backgroundColor: 'rgba(0,0,0,0.05)', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
