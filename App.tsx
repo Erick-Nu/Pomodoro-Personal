@@ -57,9 +57,9 @@ function HomeStack() {
   return (
     <Stack.Navigator screenOptions={commonStackOptions}>
       <Stack.Screen name="Inicio" component={HomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ title: 'Tarea' }} />
-      <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ title: 'Nueva Tarea' }} />
-      <Stack.Screen name="Timer" component={TimerScreen} options={{ title: 'Enfoque', headerBackVisible: false, gestureEnabled: false }} />
+      <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Timer" component={TimerScreen} options={{ headerShown: false, gestureEnabled: false }} />
     </Stack.Navigator>
   );
 }
@@ -68,9 +68,10 @@ function CalendarStack() {
   return (
     <Stack.Navigator screenOptions={commonStackOptions}>
       <Stack.Screen name="Calendario" component={CalendarScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="DetalleDia" component={DayDetailScreen} options={{ title: 'Historial' }} />
-      <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ title: 'Nueva Tarea' }} />
-      <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ title: 'Tarea' }} />
+      <Stack.Screen name="DetalleDia" component={DayDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="AddTask" component={AddTaskScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="TaskDetail" component={TaskDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Timer" component={TimerScreen} options={{ headerShown: false, gestureEnabled: false }} />
     </Stack.Navigator>
   );
 }
