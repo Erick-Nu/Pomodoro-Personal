@@ -10,10 +10,15 @@
     },
     "preview": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "image": "ubuntu-22.04-jdk-17-ndk-r26b"
       }
     },
-    "production": {}
+    "production": {
+      "android": {
+        "image": "ubuntu-22.04-jdk-17-ndk-r26b"
+      }
+    }
   },
   "submit": {
     "production": {}
