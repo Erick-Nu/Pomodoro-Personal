@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { useFocusEffect, NavigationProp, RouteProp } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { deleteTask } from '../database/db_queries_task';
 import { getNotesByTaskId, createNote, deleteNote } from '../database/db_queries_note';
@@ -89,6 +91,7 @@ interface TaskDetailScreenProps {
 type TagType = keyof typeof TAG_COLORS;
 
 export default function TaskDetailScreen({ route, navigation }: TaskDetailScreenProps) {
+  const insets = useSafeAreaInsets();
   const { tarea } = route.params;
   const [notas, setNotas] = useState<Nota[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -185,7 +188,21 @@ export default function TaskDetailScreen({ route, navigation }: TaskDetailScreen
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
+      
+      {/* Gradient Header */}
+      <LinearGradient
+        colors={[COLORS.secondary, '#1D4ED8']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.navBar, { paddingTop: insets.top + 6 }]}
+      >
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Ionicons name="chevron-back" size={22} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={styles.navTitle}>Tarea</Text>
+        <View style={{ width: 40 }} />
+      </LinearGradient>
       
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
@@ -396,6 +413,9 @@ export default function TaskDetailScreen({ route, navigation }: TaskDetailScreen
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
+  navBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 10 },
+  backBtn: { padding: 6 },
+  navTitle: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
   scrollContent: { padding: SPACING.lg, paddingBottom: 50 },
 
   // Header
