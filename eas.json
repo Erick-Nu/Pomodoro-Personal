@@ -11,12 +11,12 @@
     "preview": {
       "android": {
         "buildType": "apk",
-        "image": "ubuntu-22.04-jdk-21-ndk-r27"
+        "image": "sdk-54"
       }
     },
     "production": {
       "android": {
-        "image": "ubuntu-22.04-jdk-21-ndk-r27"
+        "image": "sdk-54"
       }
     }
   },
