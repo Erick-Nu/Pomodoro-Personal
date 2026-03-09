@@ -41,31 +41,25 @@ El sistema se compone de módulos de interfaz especializados para cada etapa del
 
 ### ![Home](https://img.shields.io/badge/Home-111827?style=flat-square&logo=icloud&logoColor=white) Panel de Control Diario
 Módulo principal que presenta un resumen ejecutivo del rendimiento diario. Incluye indicadores de tiempo de enfoque acumulado, conteo de tareas completadas y una lista priorizada de objetivos para la jornada actual.
-![Imagen de Screen: Home]
+![Pantalla de Inicio](screenshot-home.jpg)
 
 ### ![Calendar](https://img.shields.io/badge/Calendario-4B5563?style=flat-square&logo=google-calendar&logoColor=white) Vista Cronológica
 Módulo de navegación temporal que permite visualizar la distribución de carga de trabajo mediante un calendario interactivo. Sirve como punto de acceso para la auditoría de días previos.
-![Imagen de Screen: Calendario]
-
-### ![DayDetail](https://img.shields.io/badge/Historial-374151?style=flat-square&logo=docsdotrs&logoColor=white) Detalle de Jornada Histórica
-Interfaz dedicada al desglose de actividades realizadas en una fecha específica. Permite revisar el estado final de las tareas y el tiempo invertido en sesiones pasadas.
-![Imagen de Screen: Detalle Dia]
+![Vista de Calendario](screenshot-calendar.jpg)
 
 ### ![Timer](https://img.shields.io/badge/Temporizador-1E3A8A?style=flat-square&logo=clockify&logoColor=white) Motor de Concentración
 Interfaz de alta fidelidad dedicada a la ejecución de ciclos Pomodoro. Implementa controles de estado (Play/Pause/Reset) y visualización de progreso en tiempo real para la tarea activa.
-![Imagen de Screen: Temporizador]
-
-### ![Details](https://img.shields.io/badge/Detalles-059669?style=flat-square&logo=google-keep&logoColor=white) Gestión de Tarea y Notas
-Vista detallada que permite la administración de metadatos de una tarea específica. Facilita la creación y categorización de notas contextuales (Importante, Idea, Conclusión) vinculadas directamente al historial de trabajo.
-![Imagen de Screen: Detalles]
-
-### ![Calendar](https://img.shields.io/badge/Historial-4B5563?style=flat-square&logo=google-calendar&logoColor=white) Auditoría y Calendario
-Módulo de análisis retrospectivo que permite navegar por el historial de productividad mediante un calendario interactivo. Proporciona acceso a los registros de tareas y sesiones de días anteriores.
-![Imagen de Screen: Calendario]
+![Temporizador Pomodoro](screenshot-timer.jpg)
 
 ### ![Add](https://img.shields.io/badge/Registro-D97706?style=flat-square&logo=plus-square&logoColor=white) Configuración de Tareas
 Interfaz optimizada para el registro de nuevos objetivos, permitiendo definir nombres, descripciones técnicas y tiempos estimados de ejecución de forma ágil.
-![Imagen de Screen: Registro]
+![Registro de Tarea](screenshot-add-task.jpg)
+
+### ![Details](https://img.shields.io/badge/Detalles-059669?style=flat-square&logo=google-keep&logoColor=white) Gestión de Tarea y Notas
+Vista detallada que permite la administración de metadatos de una tarea específica. Facilita la creación y categorización de notas contextuales (Importante, Idea, Conclusión) vinculadas directamente al historial de trabajo.
+
+### ![DayDetail](https://img.shields.io/badge/Historial-374151?style=flat-square&logo=docsdotrs&logoColor=white) Detalle de Jornada Histórica
+Interfaz dedicada al desglose de actividades realizadas en una fecha específica. Permite revisar el estado final de las tareas y el tiempo invertido en sesiones pasadas.
 
 ---
 
@@ -119,3 +113,4 @@ src/
 *   **Integridad:** Se utilizan llaves foráneas y borrado en cascada para mantener la integridad referencial entre tareas y notas.
 
 ---
+*Desarrollado bajo estándares de ingeniería de software para maximizar la eficiencia personal.*
