@@ -39,27 +39,43 @@
 
 El sistema se compone de módulos de interfaz especializados para cada etapa del flujo de productividad:
 
-### ![Home](https://img.shields.io/badge/Home-111827?style=flat-square&logo=icloud&logoColor=white) Panel de Control Diario
-Módulo principal que presenta un resumen ejecutivo del rendimiento diario. Incluye indicadores de tiempo de enfoque acumulado, conteo de tareas completadas y una lista priorizada de objetivos para la jornada actual.
-![Pantalla de Inicio](screenshot-home.jpg)
-
-### ![Calendar](https://img.shields.io/badge/Calendario-4B5563?style=flat-square&logo=google-calendar&logoColor=white) Vista Cronológica
-Módulo de navegación temporal que permite visualizar la distribución de carga de trabajo mediante un calendario interactivo. Sirve como punto de acceso para la auditoría de días previos.
-![Vista de Calendario](screenshot-calendar.jpg)
-
-### ![Timer](https://img.shields.io/badge/Temporizador-1E3A8A?style=flat-square&logo=clockify&logoColor=white) Motor de Concentración
-Interfaz de alta fidelidad dedicada a la ejecución de ciclos Pomodoro. Implementa controles de estado (Play/Pause/Reset) y visualización de progreso en tiempo real para la tarea activa.
-![Temporizador Pomodoro](screenshot-timer.jpg)
-
-### ![Add](https://img.shields.io/badge/Registro-D97706?style=flat-square&logo=plus-square&logoColor=white) Configuración de Tareas
-Interfaz optimizada para el registro de nuevos objetivos, permitiendo definir nombres, descripciones técnicas y tiempos estimados de ejecución de forma ágil.
-![Registro de Tarea](screenshot-add-task.jpg)
-
-### ![Details](https://img.shields.io/badge/Detalles-059669?style=flat-square&logo=google-keep&logoColor=white) Gestión de Tarea y Notas
-Vista detallada que permite la administración de metadatos de una tarea específica. Facilita la creación y categorización de notas contextuales (Importante, Idea, Conclusión) vinculadas directamente al historial de trabajo.
-
-### ![DayDetail](https://img.shields.io/badge/Historial-374151?style=flat-square&logo=docsdotrs&logoColor=white) Detalle de Jornada Histórica
-Interfaz dedicada al desglose de actividades realizadas en una fecha específica. Permite revisar el estado final de las tareas y el tiempo invertido en sesiones pasadas.
+<table width="100%">
+  <tr>
+    <td width="30%"><img src="screenshot-home.jpg" width="200" alt="Home Screen"></td>
+    <td>
+      <h3><img src="https://img.shields.io/badge/Home-111827?style=flat-square&logo=icloud&logoColor=white" alt="Home"> Panel de Control Diario</h3>
+      <p>Módulo principal que presenta un resumen ejecutivo del rendimiento diario. Incluye indicadores de tiempo de enfoque acumulado, conteo de tareas completadas y una lista priorizada de objetivos para la jornada actual.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="30%"><img src="screenshot-calendar.jpg" width="200" alt="Calendar Screen"></td>
+    <td>
+      <h3><img src="https://img.shields.io/badge/Calendario-4B5563?style=flat-square&logo=google-calendar&logoColor=white" alt="Calendar"> Vista Cronológica</h3>
+      <p>Módulo de navegación temporal que permite visualizar la distribución de carga de trabajo mediante un calendario interactivo. Sirve como punto de acceso para la auditoría de días previos.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="30%"><img src="screenshot-timer.jpg" width="200" alt="Timer Screen"></td>
+    <td>
+      <h3><img src="https://img.shields.io/badge/Temporizador-1E3A8A?style=flat-square&logo=clockify&logoColor=white" alt="Timer"> Motor de Concentración</h3>
+      <p>Interfaz de alta fidelidad dedicada a la ejecución de ciclos Pomodoro. Implementa controles de estado (Play/Pause/Reset) y visualización de progreso en tiempo real para la tarea activa.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="30%"><img src="screenshot-add-task.jpg" width="200" alt="Add Task Screen"></td>
+    <td>
+      <h3><img src="https://img.shields.io/badge/Registro-D97706?style=flat-square&logo=plus-square&logoColor=white" alt="Add"> Configuración de Tareas</h3>
+      <p>Interfaz optimizada para el registro de nuevos objetivos, permitiendo definir nombres, descripciones técnicas y tiempos estimados de ejecución de forma ágil.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="30%"><i>Imagen pendiente</i></td>
+    <td>
+      <h3><img src="https://img.shields.io/badge/Detalles-059669?style=flat-square&logo=google-keep&logoColor=white" alt="Details"> Gestión de Tarea y Notas</h3>
+      <p>Vista detallada que permite la administración de metadatos de una tarea específica. Facilita la creación y categorización de notas contextuales (Importante, Idea, Conclusión) vinculadas directamente al historial de trabajo.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
