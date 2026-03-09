@@ -29,7 +29,7 @@ export const getTasksByDate = (fecha: string): Tarea[] => {
 
 export const updateProgressTask = (tareaId: number, minutos: number) => {
   db.runSync(
-    'UPDATE tareas SET tiempo_acumulado = tiempo_acumulado + ?, estado = CASE WHEN (tiempo_acumulado + ?) >= tiempo_registrado THEN "completada" ELSE "en proceso" END WHERE id = ?',
+    "UPDATE tareas SET tiempo_acumulado = tiempo_acumulado + ?, estado = CASE WHEN (tiempo_acumulado + ?) >= tiempo_registrado THEN 'completada' ELSE 'en proceso' END WHERE id = ?",
     [minutos, minutos, tareaId]
   );
   
